@@ -59,7 +59,7 @@ while motorrunning:
 	
 
 	if evbuf:
-		time, value, type, number = stuct.unpack('IhBB', evbuf)
+		time, value, type, number = struct.unpack('IhBB', evbuf)
 
 		if type & 0x80:
 			print('(initial)')
