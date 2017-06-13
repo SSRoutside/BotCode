@@ -25,6 +25,11 @@ def turnOffMotors():
 
 atexit.register(turnOffMotors)
 
+# get motor values between 0 and 255
+def getMotorValue(percent):
+	mv = percent * 255
+	return mv
+
 # Open the joystick device. 
 fn = '/dev/input/js0'
 print('Opening %s...' % fn)
@@ -34,6 +39,9 @@ jsdev = open(fn, 'rb')
 # go into driving robots with a loop
 
 motorrunning = True
+c1 = .60
+c2 = .30
+c3 = .15
 
 while motorrunning:
 
@@ -43,6 +51,11 @@ while motorrunning:
 	off_button = 5
 
 	# axis being used
+	UpDownAxis = 2
+	UpDownAxis_ID = 0x02
+
+	LeftRightAxis = 0
+	LeftRightAxis_ID = 0x00
 	
 
 	if evbuf:
@@ -53,13 +66,75 @@ while motorrunning:
 
 		# determines if signal from remote is coming from a button
 		if type & 0x01:
-			#off button
+
+			# print id of button being hit
+			print(value)
+			#off button (right 2)
 			if (number == off_button) and value:
 				break
 
 		# determines if signal from remote is coming from an axis
 		if type & 0x02:
-			
+
+			# behaviour when when js is pushed up or down
+			if (number == UpDownAxis):
+				mv = getMotorValue(c1)
+
+				myMotor1.setSpeed(mv)
+				myMotor2.setSpeed(mv)
+				myMotor3.setSpeed(mv)
+				myMotor4.setSpeed(mv)
+
+				# if up
+				if (value < 0):
+					print('forward')
+					myMotor1.run(Adafruit_MotorHAT.FORWARD)
+					myMotor2.run(Adafruit_MotorHAT.FORWARD)
+					myMotor3.run(Adafruit_MotorHAT.FORWARD)
+					myMotor4.run(Adafruit_MotorHAT.FORWARD)
+				#if down
+				else:
+					print('backward')
+					myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+                                        myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+                                        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+                                        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+
+			# behaviour when js is pushed right
+			if (number == LeftRightAxis) and (value > 0):
+				print('right')
+				# left motors at higher speed
+				myMotor1.setSpeed(c2)
+				myMotor2.setSpeed(c2)
+				# right motors at lower speed
+				myMotor3.setSpeed(c3)
+                                myMotor4.setSpeed(c3)
+
+				# left motors drive forward
+				myMotor1.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+				# right motors drive backward
+				myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+				myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+
+			# behaviour when js is pushed left
+			if (number == LeftRightAxis) and (value < 0):
+				print("left")
+				# right motors at higher speed 
+                                myMotor3.setSpeed(c2)
+                                myMotor4.setSpeed(c2)
+                                # left motors at lower speed 
+                                myMotor1.setSpeed(c3)
+                                myMotor2.setSpeed(c3)
+
+                                # right motors drive forward 
+                                myMotor3.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor4.run(Adafruit_MotorHAT.FORWARD)
+                                # left motors drive backward 
+                                myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+                                myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+
+
 	#wait before looping again
 	TIME.sleep(0.01)
 

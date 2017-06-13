@@ -30,8 +30,7 @@ axis_names = {
     0x01 : 'y',
     0x04 : 'left-z',
     0x03 : 'vertical',
-    0x02 : 'lx',
-   
+    0x02 : 'lx',   
     0x07 : 'rudder',
     0x12 : 'hat1x',
     0x16 : 'hat3x',
@@ -39,10 +38,14 @@ axis_names = {
 }
 
 button_names = {
-    0x120: 'rup',
-    0x121: 'rright',
-    0x122: 'rdown',
-    0x123: 'rleft',
+    0x120: 'rup', # also triangle
+    0x121: 'rright', # also circle
+    0x122: 'rdown', # also x
+    0x123: 'rleft', # also square
+    0x124: 'l2',
+    0x125: 'r2',
+    0x126: 'l1',
+    0x127: 'r1',
     0x288 : 'but1',
     0x289 : 'but2',
     0x290 : 'but3',
