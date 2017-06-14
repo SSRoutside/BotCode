@@ -1,0 +1,153 @@
+import time as TIME
+from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
+import atexit
+import struct
+
+import logging
+logging.basicConfig(level=logging.INFO)
+
+# From Adafruit MotorHat example code
+# create a default object, no changes to I2C address or frequency
+mh = Adafruit_MotorHAT(addr=0x60)
+
+
+# get each motor
+myMotor1 = mh.getMotor(1)
+myMotor2 = mh.getMotor(2)
+
+
+# auto disable motors on shutdown
+def turnOffMotors():
+        mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+        mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+       
+
+atexit.register(turnOffMotors)
+
+# get motor values between 0 and 255
+def getMotorValue(percent):
+	mv = percent * 255
+	mv = int(mv)
+	return mv
+
+# Open the joystick device. 
+fn = '/dev/input/js0'
+print('Opening %s...' % fn)
+jsdev = open(fn, 'rb')
+
+
+# go into driving robots with a loop
+
+motorrunning = True
+c1 = .60
+c2 = .30
+c3 = .15
+
+while motorrunning:
+
+	evbuf = jsdev.read(8)
+
+	# buttons being used
+	off_button = 5
+	brake_button = 4
+
+	# axis being used
+	UpDownAxis = 2
+	UpDownAxis_ID = 0x02
+
+	LeftRightAxis = 0
+	LeftRightAxis_ID = 0x00
+	
+
+	if evbuf:
+		time, value, type, number = struct.unpack('IhBB', evbuf)
+
+		if type & 0x80:
+			print('(initial)')
+
+		# determines if signal from remote is coming from a button
+		if type & 0x01:
+
+			# print id of button being hit
+			print(value)
+			#off button (right 2)
+			if (number == off_button) and value:
+				break
+
+			# brake button (left 2)
+			if number == brake_button and value:
+				myMotor1.setSpeed(0)
+                                myMotor2.setSpeed(0)
+                                
+
+				myMotor1.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+                                
+
+		# determines if signal from remote is coming from an axis
+		if type & 0x02:
+
+			# behaviour when when js is pushed up or down
+			if (number == UpDownAxis):
+				mv = getMotorValue(c1)
+
+				myMotor1.setSpeed(mv)
+				myMotor2.setSpeed(mv)
+			
+
+				# if up
+				if (value < 0):
+					print('forward')
+					myMotor1.run(Adafruit_MotorHAT.FORWARD)
+					myMotor2.run(Adafruit_MotorHAT.FORWARD)
+					
+				#if down
+				elif (value > 0):
+					print('backward')
+					myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+                                        myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+                                       
+
+			# behaviour when js is pushed right
+			if (number == LeftRightAxis) and (value > 0):
+				highmv = getMotorValue(c2)
+				lowmv = getMotorValue(c3)
+				print('right')
+				# left motors at higher speed
+				myMotor1.setSpeed(highmv)
+				
+				# right motors at lower speed
+				myMotor2.setSpeed(lowmv)
+                                
+
+				# left motors drive forward
+				myMotor1.run(Adafruit_MotorHAT.FORWARD)
+                                
+				# right motors drive backward
+				myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+				
+
+			# behaviour when js is pushed left
+			if (number == LeftRightAxis) and (value < 0):
+				highmv = getMotorValue(c2)
+                                lowmv = getMotorValue(c3)
+				print("left")
+				# right motors at higher speed 
+                                myMotor2.setSpeed(highmv)
+                                
+                                # left motors at lower speed 
+                                myMotor1.setSpeed(lowmv)
+                                
+
+                                # right motors drive forward 
+                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+                                
+                                # left motors drive backward 
+                                myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+                                
+
+
+	#wait before looping again
+	TIME.sleep(0.01)
+
+print('Turning off...')
