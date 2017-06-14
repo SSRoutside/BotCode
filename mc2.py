@@ -49,6 +49,7 @@ while motorrunning:
 
 	# buttons being used
 	off_button = 5
+	brake_button = 4
 
 	# axis being used
 	UpDownAxis = 2
@@ -73,6 +74,18 @@ while motorrunning:
 			if (number == off_button) and value:
 				break
 
+			# brake button (left 2)
+			if number == brake_button and value:
+				myMotor1.setSpeed(0)
+                                myMotor2.setSpeed(0)
+                                myMotor3.setSpeed(0)
+                                myMotor4.setSpeed(0)
+
+				myMotor1.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor3.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor4.run(Adafruit_MotorHAT.FORWARD)
+
 		# determines if signal from remote is coming from an axis
 		if type & 0x02:
 
@@ -93,7 +106,7 @@ while motorrunning:
 					myMotor3.run(Adafruit_MotorHAT.FORWARD)
 					myMotor4.run(Adafruit_MotorHAT.FORWARD)
 				#if down
-				else:
+				elif (value > 0):
 					print('backward')
 					myMotor1.run(Adafruit_MotorHAT.BACKWARD)
                                         myMotor2.run(Adafruit_MotorHAT.BACKWARD)

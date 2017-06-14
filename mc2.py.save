@@ -1,0 +1,117 @@
+import time as TIME
+from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
+import atexit
+
+import logging
+logging.basicConfig(level=logging.INFO)
+
+# From Adafruit MotorHat example code
+# create a default object, no changes to I2C address or frequency
+mh = Adafruit_MotorHAT(addr=0x60)
+
+# get each motor
+myMotor1 = mh.getMotor(1)
+myMotor2 = mh.getMotor(2)
+myMotor3 = mh.getMotor(3)
+myMotor4 = mh.getMotor(4)
+
+# auto disable motors on shutdown
+def turnOffMotors():
+        mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+        mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+        mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+        mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
+
+atexit.register(turnOffMotors)
+
+def getMotorVal(percent):
+	mv = (percent / 100) * 255
+	return mv
+
+# Open the joystick device. 
+fn = '/dev/input/js0'
+print('Opening %s...' % fn)
+jsdev = open(fn, 'rb')
+
+
+# go into driving robots with a loop
+
+motorrunning = True
+count = 0
+
+while motorrunning:
+	count += 1
+	evbuf = jsdev.read(8)
+
+	# buttons being used
+	off_button = 5
+
+	# axis being used
+	UpDownAxis = 2
+	UpDownAxis_ID = 0x02
+
+	LeftRightAxis = 3
+	LeftRightAxis_ID = 0x03
+	
+
+	if evbuf:
+		time, value, type, number = stuct.unpack('IhBB', evbuf)
+
+		if type & 0x80:
+			print('(initial)')
+
+		# determines if signal from remote is coming from a button
+		if type & 0x01:
+
+			# print id of button being hit
+			print(value)
+			#off button (right 2)
+			if (number == off_button) and value:
+				break
+
+		# determines if signal from remote is coming from an axis
+		if type & 0x02:
+
+			# behaviour when when js is pushed up or down
+			if (number == UpDownAxis):
+i				if count <= 60:
+					mv = getMotorVal(count)
+				else:
+					mv = getMotorVal(60)
+
+				myMotor1.setSpeed(mv)
+				myMotor2.setSpeed(mv)
+				myMotor3.setSpeed(mv)
+				myMotor4.setSpeed(mv)
+
+				if value < 0:
+					print('backward')
+					myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+					myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+					myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+					myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+
+				
+else:
+					print('forward')
+					myMotor1.run(Adafruit_MotorHAT.FORWARD)
+					myMotor2.run(Adafruit_MotorHAT.FORWARD) 
+					myMotor3.run(Adafruit_MotorHAT.FORWARD) 
+					myMotor4.run(Adafruit_MotorHAT.FORWARD) 
+
+			# behaviour when js is pushed down
+			if (number == UpDownAxis) and (value > 0):
+				print("back")
+
+			# behaviour when js is pushed right
+			if (number == LeftRightAxis) and (value > 0):
+				print("right")
+
+			# behaviour when js is pushed left
+			if (number == LeftRightAxis) and (value < 0):
+				print("left")
+
+	#wait before looping again
+	TIME.sleep(0.01)
+
+print('Turning off...')
