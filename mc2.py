@@ -55,8 +55,8 @@ while motorrunning:
 	brake_button = 4
 
 	# axis being used
-	UpDownAxis = 2
-	UpDownAxis_ID = 0x02
+	UpDownAxis = 3
+	UpDownAxis_ID = 0x03
 
 	LeftRightAxis = 0
 	LeftRightAxis_ID = 0x00
