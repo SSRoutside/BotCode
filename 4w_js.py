@@ -24,11 +24,15 @@ mh = Adafruit_MotorHAT(addr=0x60)
 # get each motor
 myMotor1 = mh.getMotor(1)
 myMotor2 = mh.getMotor(2)
+myMotor3 = mh.getMotor(3)
+myMotor4 = mh.getMotor(4)
 
 # auto disable motors on shutdown
 def turnOffMotors():
         mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
 
 atexit.register(turnOffMotors)
 
@@ -171,9 +175,13 @@ while running:
     elif button_states[butt5]:
 	myMotor1.setSpeed(0)
 	myMotor2.setSpeed(0)
+	myMotor3.setSpeed(0)
+        myMotor4.setSpeed(0)
 
 	myMotor1.run(Adafruit_MotorHAT.FORWARD)
 	myMotor2.run(Adafruit_MotorHAT.FORWARD)
+	myMotor3.run(Adafruit_MotorHAT.FORWARD)
+        myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
     elif (button_states[butt0] or button_states[butt2]):
 	#get motor value based on percent and set speed
@@ -186,12 +194,16 @@ while running:
 	    # drive backwards
 	    myMotor1.run(Adafruit_motorHAT.BACKWARD)
 	    myMotor2.run(Adafruit_motorHAT.BACKWARD)
+	    myMotor3.run(Adafruit_motorHAT.BACKWARD)
+            myMotor4.run(Adafruit_motorHAT.BACKWARD)
 
         if ax2val < 0:
             print ("Going forwards at {} ".format(ax2val))
 	    # drive forwards
 	    myMotor1.run(Adafruit_motorHAT.FORWARD)
             myMotor2.run(Adafruit_motorHAT.FORWARD)
+	    myMotor3.run(Adafruit_motorHAT.FORWARD)
+            myMotor4.run(Adafruit_motorHAT.FORWARD)
 
     else: # we should be turning left or right
 	lowmv = getMotorValue(turning)
@@ -204,10 +216,14 @@ while running:
 	    # left motors at lower speed and right motors at highter speed
 	    myMotor1.setSpeed(highmv)
 	    myMotor2.setSpeed(lowmv)
+	    myMotor3.setSpeed(highmv)
+            myMotor4.setSpeed(lowmv)
 
 	    # run left motors backwards and right motors forwards
-            myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor2.run(Adafruit_motorHAT.BACKWARD)
+	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
+	    myMotor2.run(Adafruit_motorHAT.BACKWARD)
+	    myMotor3.run(Adafruit_MotorHAT.FORWARD)
+            myMotor4.run(Adafruit_motorHAT.BACKWARD)
 
         elif ax2val > 0 :
 	    # turn right
@@ -215,12 +231,16 @@ while running:
 	    highmv = getMotorValue(ax2val)
 
 	    # right motors at lower speed and left motors at highter speed
-            myMotor1.setSpeed(highmv)
-            myMotor2.setSpeed(lowmv)
+            myMotor1.setSpeed(lowmv)
+            myMotor2.setSpeed(highmv)
+	    myMotor3.setSpeed(lowmv)
+            myMotor4.setSpeed(highmv)
 
 	    # run right motors backwards and left motors forwards
-            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+	    myMotor1.run(Adafruit_MotorHAT.BACKWARD)
             myMotor2.run(Adafruit_motorHAT.FORWARD)
+            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+            myMotor4.run(Adafruit_motorHAT.FORWARD)
 
         else:
             # axis is at 0, should we stop??
