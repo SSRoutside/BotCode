@@ -1,4 +1,3 @@
-
 import time as TIME
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import atexit
@@ -15,15 +14,13 @@ mh = Adafruit_MotorHAT(addr=0x60)
 # get each motor
 myMotor1 = mh.getMotor(1)
 myMotor2 = mh.getMotor(2)
-myMotor3 = mh.getMotor(3)
-myMotor4 = mh.getMotor(4)
+
 
 # auto disable motors on shutdown
 def turnOffMotors():
         mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
-        mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
-        mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
+       
 
 atexit.register(turnOffMotors)
 
@@ -55,8 +52,8 @@ while motorrunning:
 	brake_button = 4
 
 	# axis being used
-	UpDownAxis = 3
-	UpDownAxis_ID = 0x03
+	UpDownAxis = 2
+	UpDownAxis_ID = 0x02
 
 	LeftRightAxis = 0
 	LeftRightAxis_ID = 0x00
@@ -81,13 +78,11 @@ while motorrunning:
 			if number == brake_button and value:
 				myMotor1.setSpeed(0)
                                 myMotor2.setSpeed(0)
-                                myMotor3.setSpeed(0)
-                                myMotor4.setSpeed(0)
+                                
 
 				myMotor1.run(Adafruit_MotorHAT.FORWARD)
                                 myMotor2.run(Adafruit_MotorHAT.FORWARD)
-                                myMotor3.run(Adafruit_MotorHAT.FORWARD)
-                                myMotor4.run(Adafruit_MotorHAT.FORWARD)
+                                
 
 		# determines if signal from remote is coming from an axis
 		if type & 0x02:
@@ -98,23 +93,20 @@ while motorrunning:
 
 				myMotor1.setSpeed(mv)
 				myMotor2.setSpeed(mv)
-				myMotor3.setSpeed(mv)
-				myMotor4.setSpeed(mv)
+			
 
 				# if up
 				if (value < 0):
 					print('forward')
 					myMotor1.run(Adafruit_MotorHAT.FORWARD)
 					myMotor2.run(Adafruit_MotorHAT.FORWARD)
-					myMotor3.run(Adafruit_MotorHAT.FORWARD)
-					myMotor4.run(Adafruit_MotorHAT.FORWARD)
+					
 				#if down
 				elif (value > 0):
 					print('backward')
 					myMotor1.run(Adafruit_MotorHAT.BACKWARD)
                                         myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-                                        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-                                        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+                                       
 
 			# behaviour when js is pushed right
 			if (number == LeftRightAxis) and (value > 0):
@@ -123,17 +115,17 @@ while motorrunning:
 				print('right')
 				# left motors at higher speed
 				myMotor1.setSpeed(highmv)
-				myMotor2.setSpeed(highmv)
+				
 				# right motors at lower speed
-				myMotor3.setSpeed(lowmv)
-                                myMotor4.setSpeed(lowmv)
+				myMotor2.setSpeed(lowmv)
+                                
 
 				# left motors drive forward
 				myMotor1.run(Adafruit_MotorHAT.FORWARD)
-                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+                                
 				# right motors drive backward
-				myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-				myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+				myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+				
 
 			# behaviour when js is pushed left
 			if (number == LeftRightAxis) and (value < 0):
@@ -141,18 +133,18 @@ while motorrunning:
                                 lowmv = getMotorValue(c3)
 				print("left")
 				# right motors at higher speed 
-                                myMotor3.setSpeed(highmv)
-                                myMotor4.setSpeed(highmv)
+                                myMotor2.setSpeed(highmv)
+                                
                                 # left motors at lower speed 
                                 myMotor1.setSpeed(lowmv)
-                                myMotor2.setSpeed(lowmv)
+                                
 
                                 # right motors drive forward 
-                                myMotor3.run(Adafruit_MotorHAT.FORWARD)
-                                myMotor4.run(Adafruit_MotorHAT.FORWARD)
+                                myMotor2.run(Adafruit_MotorHAT.FORWARD)
+                                
                                 # left motors drive backward 
                                 myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-                                myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+                                
 
 
 	#wait before looping again

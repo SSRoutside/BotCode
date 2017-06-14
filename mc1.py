@@ -188,12 +188,14 @@ while motorrunning:
 			print("(initial)")
 
 		if type & 0x01:
+			print(value)
 			# turn off robot by exiting while loop
 			off_button = 5
 			if (number == off_button) and value:
 				break
 
 		if type & 0x02:
+			print(value)
 			right_js = 2
 			r_axis = 0x02
 
