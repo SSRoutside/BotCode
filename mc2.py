@@ -1,6 +1,8 @@
+
 import time as TIME
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import atexit
+import struct
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +30,7 @@ atexit.register(turnOffMotors)
 # get motor values between 0 and 255
 def getMotorValue(percent):
 	mv = percent * 255
+	mv = int(mv)
 	return mv
 
 # Open the joystick device. 
@@ -60,7 +63,7 @@ while motorrunning:
 	
 
 	if evbuf:
-		time, value, type, number = stuct.unpack('IhBB', evbuf)
+		time, value, type, number = struct.unpack('IhBB', evbuf)
 
 		if type & 0x80:
 			print('(initial)')
@@ -115,13 +118,15 @@ while motorrunning:
 
 			# behaviour when js is pushed right
 			if (number == LeftRightAxis) and (value > 0):
+				highmv = getMotorValue(c2)
+				lowmv = getMotorValue(c3)
 				print('right')
 				# left motors at higher speed
-				myMotor1.setSpeed(c2)
-				myMotor2.setSpeed(c2)
+				myMotor1.setSpeed(highmv)
+				myMotor2.setSpeed(highmv)
 				# right motors at lower speed
-				myMotor3.setSpeed(c3)
-                                myMotor4.setSpeed(c3)
+				myMotor3.setSpeed(lowmv)
+                                myMotor4.setSpeed(lowmv)
 
 				# left motors drive forward
 				myMotor1.run(Adafruit_MotorHAT.FORWARD)
@@ -132,13 +137,15 @@ while motorrunning:
 
 			# behaviour when js is pushed left
 			if (number == LeftRightAxis) and (value < 0):
+				highmv = getMotorValue(c2)
+                                lowmv = getMotorValue(c3)
 				print("left")
 				# right motors at higher speed 
-                                myMotor3.setSpeed(c2)
-                                myMotor4.setSpeed(c2)
+                                myMotor3.setSpeed(highmv)
+                                myMotor4.setSpeed(highmv)
                                 # left motors at lower speed 
-                                myMotor1.setSpeed(c3)
-                                myMotor2.setSpeed(c3)
+                                myMotor1.setSpeed(lowmv)
+                                myMotor2.setSpeed(lowmv)
 
                                 # right motors drive forward 
                                 myMotor3.run(Adafruit_MotorHAT.FORWARD)
