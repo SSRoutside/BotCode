@@ -232,10 +232,21 @@ while running:
 
 
     else: # we should be turning left or right
-	lowmv = getMotorValue(turning)
+	# eliminate noise from joystick
+        if abs(ax2val) < .05:
+            myMotor1.setSpeed(0)
+            myMotor2.setSpeed(0)
+            myMotor3.setSpeed(0)
+            myMotor4.setSpeed(0)
+
+	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
+            myMotor2.run(Adafruit_MotorHAT.FORWARD)
+            myMotor3.run(Adafruit_MotorHAT.FORWARD)
+            myMotor4.run(Adafruit_MotorHAT.FORWARD)
+
 
 	# if right 1 and joystick pressed left, turn left and move forward
-	if (button_states[butt7] and (ax2val < 0)):
+	elif (button_states[butt7] and (ax2val < 0)):
 	    # set low motor value to threshold
 	    lowmv = getMotorValue(dynamic_turning)
 
@@ -262,7 +273,7 @@ while running:
 	    myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
 	# if right 2 and joystick pressed left, turn left and move backward
-        if (button_states[butt5] and (ax2val < 0)):
+        elif (button_states[butt5] and (ax2val < 0)):
             # set low motor value to threshold
             lowmv = getMotorValue(dynamic_turning)
 
@@ -350,6 +361,7 @@ while running:
 	    # turn left
             print("Turning left at {} ".format(ax2val))
 	    highmv = getMotorValue(ax2val * -1)
+	    lowmv = getMotorValue(turning)
 
 	    # left motors at lower speed and right motors at highter speed
 	    myMotor1.setSpeed(highmv)
@@ -367,6 +379,7 @@ while running:
 	    # turn right
             print("Turning right at {} ".format(ax2val))
 	    highmv = getMotorValue(ax2val)
+	    lowmv = getMotorValue(turning)
 
 	    # right motors at lower speed and left motors at highter speed
             myMotor1.setSpeed(lowmv)
