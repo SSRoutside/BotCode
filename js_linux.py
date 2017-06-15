@@ -3,6 +3,7 @@
 # https://www.kernel.org/doc/Documentation/input/joystick-api.txt
 
 import os, struct, array
+import fcntl
 from fcntl import ioctl
 
 # Iterate over the joystick devices.
@@ -28,11 +29,6 @@ axis_names = {
     0x01 : 'axis1', # right joystick analog input L/R
     0x02 : 'axis2', # right joystick analog input U/D
     0x03 : 'axis3', # Binary U/D axis for 4-way button
-    0x04 : '',
-    0x07 : '',
-    0x12 : '',
-    0x16 : '',
-    0x17 : '',
 }
 
 button_names = {
@@ -58,6 +54,10 @@ button_map = []
 fn = '/dev/input/js0'
 print('Opening %s...' % fn)
 jsdev = open(fn, 'rb')
+
+# set to non-blocking!!!
+flag = fcntl.fcntl(jsdev, fcntl.F_GETFD)
+fcntl.fcntl(jsdev, fcntl.F_SETFL, flag | os.O_NONBLOCK)
 
 # Get the device name.
 
@@ -105,75 +105,84 @@ print('{:d} buttons found '.format(num_buttons))
 # It MAY be possible to poll joystick values continuously (check joystick API and maybe evdev API?)
 # but in the meantime we can write code that APPEARS continuous even though it is event-based
 
-running = True
 
-# Observe that axis map and button map contain the CURRENT STATE of each axis.
+def main():
+    running = True
 
-while running:
+    # Observe that axis map and button map contain the CURRENT STATE of each axis.
 
-    # To see a continuously updated list of the current values of all buttons and axes, uncomment the below
+    while running:
+        # To see a continuously updated list of the current values of all buttons and axes, uncomment the below
 
-    # print current controller state:
-    #for butt in button_map:
-    #    print("{name} : {val} ".format(name=butt, val=button_states[butt]))
+        # print current controller state:
+        #for butt in button_map:
+        #    print("{name} : {val} ".format(name=butt, val=button_states[butt]))
 
-    #for ax in axis_map:
-    #    print("{name} : {val} ".format(name=ax, val=axis_states[ax]))
+        #for ax in axis_map:
+        #    print("{name} : {val} ".format(name=ax, val=axis_states[ax]))
 
-    # Use current joystick state to control robot
+        # Use current joystick state to control robot
 
-    # Axis 2 is the only analog axis BUT can act as 2 axes by combining with buttons
-    # Axis 2 can be controlled by:
-    # L/R on left toggle
-    # U/D on right toggle (this also toggles the states of buttons 0 or 2)
+        # Axis 2 is the only analog axis BUT can act as 2 axes by combining with buttons
+        # Axis 2 can be controlled by:
+        # L/R on left toggle
+        # U/D on right toggle (this also toggles the states of buttons 0 or 2)
 
-    # Example code:
+        # Example code:
 
-    # get value from axis 2
-    ax2 = axis_map[2]
-    ax2val = axis_states[ax2]
+        try:
+            # read
+            evbuf = jsdev.read(8)
+            if evbuf:
+                time, value, intype, number = struct.unpack('IhBB', evbuf)
 
-    # check button states
-    butt0 = button_map[0]
-    butt2 = button_map[2]
+                if intype & 0x01:
+                    button = button_map[number]
+                    if button:
+                        button_states[button] = value
 
-    # There are several methods to determine which combination of button/axes has been set!
-    # this is just one example
+                if intype & 0x02:
+                    axis = axis_map[number]
+                    if axis:
+                        fvalue = value / 32767.0
+                        axis_states[axis] = fvalue
 
-    if (button_states[butt0] or button_states[butt2]):
-        # we should be moving forwards or backwards
-        if ax2val > 0:
-            print("Going backwards at {} ".format(ax2val))
+        except:
+            pass
 
-        if ax2val < 0:
-            print ("Going forwards at {} ".format(ax2val))
 
-    else: # we should be turning left or right
-        if ax2val < 0:
-            print("Turning left at {} ".format(ax2val))
-        elif ax2val > 0 :
-            print("Turning right at {} ".format(ax2val))
-        else:
-            # axis is at 0, should we stop??
-            print("Here is a good spot to stop")
+        # get value from axis 2
+        diraxis = axis_map[2]
+        ax2val = axis_states[diraxis]
 
-    # Things to think about:
-    # how can we change between turning on the spot and turning while moving forward or back?
-    # what other controls might be useful?
+        # check button states
+        butt0 = button_map[0]
+        butt2 = button_map[2]
 
-    # check if anything has hit the event queue
-    evbuf = jsdev.read(8)
+    
+        # There are several methods to determine which combination of button/axes has been set!
+        # this is just one example
 
-    if evbuf:
-        time, value, type, number = struct.unpack('IhBB', evbuf)
+        if (button_states[butt0] or button_states[butt2]):
+            # we should be moving forwards or backwards
+            if ax2val > 0:
+                print("Going backwards at {} ".format(ax2val))
 
-        if type & 0x01:
-            button = button_map[number]
-            if button:
-                button_states[button] = value
+            if ax2val < 0:
+                print ("Going forwards at {} ".format(ax2val))
 
-        if type & 0x02:
-            axis = axis_map[number]
-            if axis:
-                fvalue = value / 32767.0
-                axis_states[axis] = fvalue
+        else: # we should be turning left or right
+            if ax2val < 0:
+                print("Turning left at {} ".format(ax2val))
+            elif ax2val > 0 :
+                print("Turning right at {} ".format(ax2val))
+
+
+        # Things to think about:
+        # how can we change between turning on the spot and turning while moving forward or back?
+        # what other controls might be useful?
+
+
+
+if __name__ == '__main__':
+  main()
