@@ -6,6 +6,8 @@ import time as TIME
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import atexit
 import struct
+import fcntl
+from fcntl import ioctl
 
 import os, struct, array
 from fcntl import ioctl
@@ -23,8 +25,8 @@ mh = Adafruit_MotorHAT(addr=0x60)
 
 # get each motor
 myMotor1 = mh.getMotor(1) # right motor
-myMotor2 = mh.getMotor(2) # left motor
-myMotor3 = mh.getMotor(3) # right motor
+myMotor2 = mh.getMotor(3) # left motor
+myMotor3 = mh.getMotor(2) # right motor
 myMotor4 = mh.getMotor(4) # left motor
 
 # auto disable motors on shutdown
@@ -84,7 +86,9 @@ fn = '/dev/input/js0'
 print('Opening %s...' % fn)
 jsdev = open(fn, 'rb')
 
-# Get the device name.
+# set to non-blocking!!!
+flag = fcntl.fcntl(jsdev, fcntl.F_GETFD)
+fcntl.fcntl(jsdev, fcntl.F_SETFL, flag | os.O_NONBLOCK)
 
 # Get number of axes and buttons.
 buf = array.array('B', [0])
@@ -133,9 +137,9 @@ print('{:d} buttons found '.format(num_buttons))
 running = True
 
 # constant for weaker turning side (during static turn)
-turning = .15
+turning = .30
 # threshold for both motors while executing dynamic turn
-dynamic_turning = .30
+dynamic_turning = .50
 
 # Observe that axis map and button map contain the CURRENT STATE of each axis.
 
@@ -188,26 +192,43 @@ while running:
         myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
     elif (button_states[butt0] or button_states[butt2]):
-	#get motor value based on percent and set speed
-	mv = getMotorValue(ax2val)
-	myMotor1.setSpeed(mv)
-	myMotor2.setSpeed(mv)
+	# eliminate noise from joystick
+	if abs(ax2val) < .05:
+	    myMotor1.setSpeed(0)
+            myMotor2.setSpeed(0)
+            myMotor3.setSpeed(0)
+            myMotor4.setSpeed(0)
+
+	else:
+	    #get motor value based on percent and set speed
+	    mv = getMotorValue(ax2val)
+	    myMotor1.setSpeed(mv*4)
+	    myMotor2.setSpeed(mv*4)
+	    myMotor3.setSpeed(mv*4)
+	    myMotor4.setSpeed(mv*4)
+
         # we should be moving forwards or backwards
         if ax2val > 0:
-            print("Going backwards at {} ".format(ax2val)
+            print("Going backwards at {} ".format(ax2val))
 	    # drive backwards
-	    myMotor1.run(Adafruit_motorHAT.BACKWARD)
-	    myMotor2.run(Adafruit_motorHAT.BACKWARD)
-	    myMotor3.run(Adafruit_motorHAT.BACKWARD)
-            myMotor4.run(Adafruit_motorHAT.BACKWARD)
+	    myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+	    myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+	    myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
-        if ax2val < 0:
+        elif ax2val < 0:
             print ("Going forwards at {} ".format(ax2val))
+	    mv = getMotorValue(ax2val*-1)
+            myMotor1.setSpeed(mv*4)
+            myMotor2.setSpeed(mv*4)
+            myMotor3.setSpeed(mv*4)
+            myMotor4.setSpeed(mv*4)
+
 	    # drive forwards
-	    myMotor1.run(Adafruit_motorHAT.FORWARD)
-            myMotor2.run(Adafruit_motorHAT.FORWARD)
-	    myMotor3.run(Adafruit_motorHAT.FORWARD)
-            myMotor4.run(Adafruit_motorHAT.FORWARD)
+	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
+            myMotor2.run(Adafruit_MotorHAT.FORWARD)
+	    myMotor3.run(Adafruit_MotorHAT.FORWARD)
+            myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
 
     else: # we should be turning left or right
@@ -219,7 +240,6 @@ while running:
 	    lowmv = getMotorValue(dynamic_turning)
 
 	    print("Forward and left at {} ".format(ax2val))
-	    
 	    # set high motor value to a value above threshold proportional
 	    # to the joysick value, otherwise set it to the threshold
 	    # value
@@ -339,9 +359,9 @@ while running:
 
 	    # run left motors backwards and right motors forwards
 	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
-	    myMotor2.run(Adafruit_motorHAT.BACKWARD)
+	    myMotor2.run(Adafruit_MotorHAT.BACKWARD)
 	    myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_motorHAT.BACKWARD)
+            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
         elif ax2val > 0 :
 	    # turn right
@@ -356,9 +376,9 @@ while running:
 
 	    # run right motors backwards and left motors forwards
 	    myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor2.run(Adafruit_motorHAT.FORWARD)
+            myMotor2.run(Adafruit_MotorHAT.FORWARD)
             myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_motorHAT.FORWARD)
+            myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
         else:
             # axis is at 0, should we stop??
@@ -369,20 +389,24 @@ while running:
     # what other controls might be useful?
 
     # check if anything has hit the event queue
-    evbuf = jsdev.read(8)
+    try:
+            # read
+            evbuf = jsdev.read(8)
+            if evbuf:
+                time, value, intype, number = struct.unpack('IhBB', evbuf)
 
-    if evbuf:
-        time, value, type, number = struct.unpack('IhBB', evbuf)
+                if intype & 0x01:
+                    button = button_map[number]
+                    if button:
+                        button_states[button] = value
 
-        if type & 0x01:
-            button = button_map[number]
-            if button:
-                button_states[button] = value
+                if intype & 0x02:
+                    axis = axis_map[number]
+                    if axis:
+                        fvalue = value / 32767.0
+                        axis_states[axis] = fvalue
 
-        if type & 0x02:
-            axis = axis_map[number]
-            if axis:
-                fvalue = value / 32767.0
-                axis_states[axis] = fvalue
+    except:
+        pass
 
 print("Code stopping...")
