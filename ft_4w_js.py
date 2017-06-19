@@ -177,7 +177,9 @@ while running:
 
     # There are several methods to determine which combination of button/axes has been set!
     # this is just one example
-    if button_states[butt4]:
+
+    # hit r2 and l2 as a "kill switch"
+    if (button_states[butt4] and button_states[butt5]):
 	break
 
     elif button_states[butt6]:
