@@ -120,9 +120,10 @@ baseline_name = baseline_name + '_1.jpg'
             # Note that there are many, many ways to save images in Python.
             # OpenCV has one method in its library, but for faster image saving we could look into something like PIL.
             baseline_name = baseline_name + '_'+counter+'.jpg' #keeps count of the photo taken in this particular series
-            cv2.imwrite(baseline_name + '_depth.PNG', d_im_col);
-            cv2.imwrite(baseline_name + '_color.PNG', rgb_im);
+            cv2.imwrite(baseline_name + '_'+ counter +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ '_depth.PNG', d_im_col);
+            cv2.imwrite(baseline_name +'_'+ counter +'_'+ str(datetime.date.today()) +'_'+ time.strftime("%H:%M:%S") +'_'+ '_color.PNG', rgb_im);
             # to-do: how do we save images to a specific folder? How can we let the user choose this folder on start up?
+            # the above imwrite commands have the format of series_count_date_time.png
 
             # Jesus: I think we can add a raw_input line at the beginning of the code asking the user for a folder. We would also need to make sure that the inputed folder name actually exists. If input does not match an existing folder, would keep asking user for a folder name.
 
