@@ -121,6 +121,73 @@ print('{:d} axes found '.format(num_axes))
 
 print('{:d} buttons found '.format(num_buttons))
 
+
+
+
+
+
+
+
+
+
+
+
+#Jesus's work starts here:
+
+'''
+Idea is to simplify the initial code into a series of functions that are called, thereby reducing repetition of code. 
+'''
+
+fast = #high motor value
+slow = #low motor value 
+
+def setAndDriveLeft(speed, Forward):
+
+    myMotor1.setSpeed()
+    myMotor2.setSpeed()
+    myMotor3.setSpeed()
+    myMotor4.setSpeed()
+    
+def setAndDriveRight(speed, Forward):
+
+    myMotor1.setSpeed()
+    myMotor2.setSpeed()
+    myMotor3.setSpeed()
+    myMotor4.setSpeed()
+
+
+def main():
+
+    
+main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Main control loop
 # The following code is event-based. That means the values are ONLY updated on change.
 
@@ -142,6 +209,7 @@ turning = .30
 dynamic_turning = .50
 
 # Observe that axis map and button map contain the CURRENT STATE of each axis.
+
 
 while running:
 
