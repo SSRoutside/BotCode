@@ -94,31 +94,8 @@ with pyrs.Service() as a:
 		c = dev.color
 		rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
 
-		# raw data from depth cameras
-		d_raw = dev.depth
-		# depth data in mm
 		d = dev.depth * dev.depth_scale * 1000
-		# depth data in a good scale for the image displayed on screen
 		d_im = dev.depth*0.05
-
-		# navigate to final directory
-		os.chdir(final_directory)
-
-		# open files to write out each of the variables listed above (d_raw, d, d_im)
-		d_raw_file = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+'RAW DEPTH DATA.txt', 'w')
-		d_mm_file = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+'MM DEPTH DATA.txt', 'w')
-		d_im = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+'IMAGE DEPTH DATA.txt', 'w')
-
-		# cast each variable as a string and write to the file
-		d_raw_file.write(str(d_raw))
-		d_mm_file.write(str(d))
-		d_im_file.write(str(d_im))
-
-		# close each of the files after writing to them
-		d_raw_file.close()
-		d_mm_file.close()
-		d_im_file.close()
-		
 
 		d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
 
