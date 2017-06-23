@@ -94,8 +94,11 @@ with pyrs.Service() as a:
 		c = dev.color
 		rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
 
+                # raw data from the depth camera
 		d_raw = dev.depth
+                # data converted to milimeters
                 d_mm = dev.depth * dev.depth_scale * 1000
+                # data converted to show up well on the
 		d_im = dev.depth*0.05
 
 		d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
@@ -131,14 +134,21 @@ with pyrs.Service() as a:
 		    cv2.imwrite(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'depth.PNG', d_im_col)
 		    cv2.imwrite(file_name +'_'+ str(datetime.date.today()) +'_'+ time.strftime("%H:%M:%S") +'_'+ 'color.PNG', rgb_im)
 
-
+                    # open files to write binary
                     raw_out = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'RawOut', 'wb')
                     mm_out = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'MMOut', 'wb')
                     image_out = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'ImageOut', 'wb')
 
+                    #write variables to the opened files (for raw data, for milimeter data, for image data as in variables above)
                     raw_out.write(d_raw)
                     mm_out.write(d_mm)
                     image_out.write(d_im)
+
+
+                    #close files
+                    raw_out.close()
+                    mm_out.close()
+                    image_out.close()
 			# to-do: how do we save images to a specific folder? How can we let the user choose this folder on start up?
 			# the above imwrite commands have the format of series_count_date_time.png
 
