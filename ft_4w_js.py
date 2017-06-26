@@ -166,12 +166,6 @@ def setAndDriveLeftMotors(speed, Forward):
 
 
 
-        
-def main():
-
-    
-main()
-
 # main control loop
 # The following code is event-based. That means the values are ONLY updated on change.
 
