@@ -277,10 +277,10 @@ while running:
 
         # we should be moving forwards
         # (same logic as described above)
-        elif ax2val < 0:
-            print ("Going forwards at {} ".format(ax2val))
-	    setAndDriveLeftMotors(abs(ax2val)*(-4), True) #here, we multiply by -4 just to convert the negative value for forwards to a positive value
-            setAndDriveRightMotors(abs(ax2val)*(-4), True)
+             elif ax2val < 0:
+                 print ("Going forwards at {} ".format(ax2val))
+	         setAndDriveLeftMotors(abs(ax2val)*(4), True) #here, we multiply by -4 just to convert the negative value for forwards to a positive value
+                 setAndDriveRightMotors(abs(ax2val)*(4), True)
 
 	    # drive forwards
 	    	    
@@ -290,7 +290,7 @@ while running:
     ##                                      ##
     ##########################################
 
-        else: # we should be turning left or right
+    else: # we should be turning left or right
 	# eliminate noise from joystick
         if abs(ax2val) < .05:
             speed = 0
