@@ -2,6 +2,7 @@
 # Based on information from:
 # https://www.kernel.org/doc/Documentation/input/joystick-api.txt
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 #imports from basic_test.py (for real sense camera)
@@ -9,11 +10,11 @@ import numpy as np
 import cv2
 import pyrealsense as pyrs
 import datetime
-from PIL import Image
+#from PIL import Image
 
 
 #imports for motor control
-import time as TIME
+import time
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import atexit
 import struct
@@ -22,10 +23,6 @@ from fcntl import ioctl
 
 import os, struct, array
 from fcntl import ioctl
-
-
-
-
 
 # Iterate over the joystick devices.
 print('Available devices:')
@@ -140,13 +137,11 @@ print('{:d} axes found '.format(num_axes))
 print('{:d} buttons found '.format(num_buttons))
 #####################################################################
 
-
-
 #Jesus's work starts here:
 
-'''
-Idea is to simplify the initial code into a series of functions that are called, thereby reducing repetition of code. 
-'''
+#'''
+#Idea is to simplify the initial code into a series of functions that are called, thereby reducing repetition of code. 
+#'''
 
 
 def setAndDriveRightMotors(speed, Forward):
@@ -164,6 +159,7 @@ def setAndDriveRightMotors(speed, Forward):
         myMotor3.run(Adafruit_MotorHAT.BACKWARD)
         myMotor1.run(Adafruit_MotorHAT.BACKWARD)
         
+
 def setAndDriveLeftMotors(speed, Forward):
 
     mv = getMotorValue(speed)
@@ -209,41 +205,49 @@ with pyrs.Service() as a:
     dev = pyrs.Device()
         #with pyrs.Service() as a, pyrs.Device() as dev:
 
+   # dev.apply_ivcam_preset(0)
+   # dev.set_device_option(31, 0)
+    #dev.set_device_option(29, 1)
+    #dev.set_device_option(30,3)
 
+    #emitter enabled
+    dev.set_device_option(31, 1)
 
-    dev.apply_ivcam_preset(0)
-    dev.set_device_option(31, 0)
-    dev.set_device_option(29, 1)
-    dev.set_device_option(30,3)
+    #auto exposure 
+    dev.set_device_option(28,1)
+
+    #auto white balance
+   # dev.set_device_option(11,1)
+
     cnt = 0
     last = time.time()
     smoothing = 0.9
     fps_smooth = 30
 
 
-while running:
-    cnt += 1
-    if (cnt % 10) == 0:
-        now = time.time()
-        dt = now - last
-        fps = 10/dt
-        fps_smooth = (fps_smooth * smoothing) + (fps * (1.0-smoothing))
-        last = now
+    while running:
+        cnt += 1
+        if (cnt % 10) == 0:
+            now = time.time()
+            dt = now - last
+            fps = 10/dt
+            fps_smooth = (fps_smooth * smoothing) + (fps * (1.0-smoothing))
+            last = now
 
-    dev.wait_for_frames()
+        dev.wait_for_frames()
 
-    c = dev.color
-    rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
+        c = dev.color
+        rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
 
                 # raw depth data
-    d_raw = dev.depth
+        d_raw = dev.depth
                 # depth data scaled to read milimeters
-    d_mm = dev.depth * dev.depth_scale * 1000
+        d_mm = dev.depth * dev.depth_scale * 1000
                 # data that is scaled to be seen nicely in the depth
                # depth picture as shown on the monitor
-    d_im = dev.depth*0.05
+        d_im = dev.depth*0.05
 
-    d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
+        d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
 
                # i_im = dev.infrared
                # np.resize(i_im, (480, 640))
@@ -252,10 +256,10 @@ while running:
 
                 # putting all three images : rgb, depth, and infrared together
                 #cd1 = np.concatenate((c,d_im_col), axis=1)
-    cd = np.concatenate((d_im_col,c), axis=1)
+        cd = np.concatenate((d_im_col,c), axis=1)
 
 
-    cv2.putText(cd, str(fps_smooth)[:4], (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0))
+        cv2.putText(cd, str(fps_smooth)[:4], (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0))
 
                 # what other colourmaps exist? are some more intuitive than others? Any that would b$
                 # good ones to use (because they have a lot of color bins):
@@ -263,300 +267,299 @@ while running:
                 # COLORMAP_JET
                 # COLORMAP_RAINBOW
 
-    cv2.imshow('', cd)
-    input = cv2.waitKey(1)
+        cv2.imshow('', cd)
+        input = cv2.waitKey(1)
 
 
-#####################################
-##                                 ##
-## Optional - Keyboard Kill Switch ##
-##                                 ##  
-#####################################
-    if input == ord('q'):
-        break
+        #####################################
+        ##                                 ##
+        ## Optional - Keyboard Kill Switch ##
+        ##                                 ##  
+        #####################################
+        if input == ord('q'):
+            break
                 #if cv2.waitKey(1) & 0xFF == ord('q'):
                 #    break
-    elif (input == -1):
-        continue
+        elif (input == -1):
+            continue
 
 
 
 
-    # To see a continuously updated list of the current values of all buttons and axes, uncomment the below
+        # To see a continuously updated list of the current values of all buttons and axes, uncomment the below
 
-    # print current controller state:
-    #for butt in button_map:
-    #    print("{name} : {val} ".format(name=butt, val=button_states[butt]))
+        # print current controller state:
+        #for butt in button_map:
+        #    print("{name} : {val} ".format(name=butt, val=button_states[butt]))
 
-    #for ax in axis_map:
-    #    print("{name} : {val} ".format(name=ax, val=axis_states[ax]))
+        #for ax in axis_map:
+        #    print("{name} : {val} ".format(name=ax, val=axis_states[ax]))
 
-    # Use current joystick state to control robot
+        # Use current joystick state to control robot
 
-    # Axis 2 is the only analog axis BUT can act as 2 axes by combining with buttons
-    # Axis 2 can be controlled by:
-    # L/R on left toggle
-    # U/D on right toggle (this also toggles the states of buttons 0 or 2)
+        # Axis 2 is the only analog axis BUT can act as 2 axes by combining with buttons
+        # Axis 2 can be controlled by:
+        # L/R on left toggle
+        # U/D on right toggle (this also toggles the states of buttons 0 or 2)
 
-    # Example code:
+        # Example code:
 
-    # get value from axis 2
-    # axis 2 is comprised of the bottom 2 joysticks on the controller
-    # the one on the left controls L/R and the one on the right controls U/D
-    # this combination together we call axis 2
-    ax2 = axis_map[2]
-    ax2val = axis_states[ax2] #from the event-based approach, this ####################################
+        # get value from axis 2
+        # axis 2 is comprised of the bottom 2 joysticks on the controller
+        # the one on the left controls L/R and the one on the right controls U/D
+        # this combination together we call axis 2
+        ax2 = axis_map[2]
+        ax2val = axis_states[ax2] #from the event-based approach, this ####################################
 
-    # check button states
-    butt0 = button_map[0]
-    butt2 = button_map[2]
-    butt4 = button_map[4] # brake button (left 2)
-    butt6 = button_map[6] # off button (left 1)
-    butt5 = button_map[5] # backward turn button (right 2)
-    butt7 = button_map[7] # forward turn button (right 1)
+        # check button states
+        butt0 = button_map[0]
+        butt2 = button_map[2]
+        butt4 = button_map[4] # brake button (left 2)
+        butt6 = button_map[6] # off button (left 1)
+        butt5 = button_map[5] # backward turn button (right 2)
+        butt7 = button_map[7] # forward turn button (right 1)
 
-    # There are several methods to determine which combination of button/axes has been set!
-    # this is just one example
+        # There are several methods to determine which combination of button/axes has been set!
+        # this is just one example
 
-    #############################
-    ##                         ##
-    ##     Kill Switch         ##
-    ##                         ##
-    #############################
-    
-    # hit r2 and l2 as a "kill switch"
-    if (button_states[butt4] and button_states[butt5]):
-	break
+        #############################
+        ##                         ##
+        ##     Kill Switch         ##
+        ##                         ##
+        #############################
 
-    #############################
-    ##                         ##
-    ##     Brakes              ##
-    ##                         ##
-    #############################
-    
-    elif button_states[butt6]: #the brakes
-        speed = 0
-        setAndDriveLeftMotors(speed, False)
-        setAndDriveRightMotors(speed, False)
+        # hit r2 and l2 as a "kill switch"
+        if (button_states[butt4] and button_states[butt5]):
+            break
 
-    #########################################
-    ##                                     ##
-    ##     Driving Forward/Backwards       ##
-    ##                                     ##
-    #########################################
+        #############################
+        ##                         ##
+        ##     Brakes              ##
+        ##                         ##
+        #############################
 
-    elif (button_states[butt0] or button_states[butt2]):
-	# eliminate noise from joystick
-        # helps if analog axis is slightly being pushed
-        # we set a deadzone so that the motors don't trigger by a too-sensitive joystick
-	if abs(ax2val) < .05: 
+        elif button_states[butt6]: #the brakes
             speed = 0
             setAndDriveLeftMotors(speed, False)
             setAndDriveRightMotors(speed, False)
 
-	else:
-	    #get motor value based on percent and set speed
-            # even though the ax2val is positive, because of the way the axis is setup, pressing
-            # up actually returns a negative floating point value and similarly, pressing down returns
-            # a positive floating point value (that we then multiply by 255 to get the motor speed).
-            # since ax2val is positive, we are setting the motors to drive backwards
-	     if ax2val > 0:
-                 print("Going backwards at {} ".format(ax2val))
-	         # drive backwards
-                 setAndDriveLeftMotors(abs(ax2val)*4, False) # we multiply by 4 because the max value returned from any axis is approx .25 
-                 setAndDriveRightMotors(abs(ax2val)*4, False) # allows us to get an actual percentage from the axis by making the max 1 not .25
-	   
+        #########################################
+        ##                                     ##
+        ##     Driving Forward/Backwards       ##
+        ##                                     ##
+        #########################################
 
-        # we should be moving forwards
-        # (same logic as described above)
-             elif ax2val < 0:
-                 print ("Going forwards at {} ".format(ax2val))
-	         setAndDriveLeftMotors(abs(ax2val)*(4), True) #here, we multiply by -4 just to convert the negative value for forwards to a positive value
-                 setAndDriveRightMotors(abs(ax2val)*(4), True)
+        elif (button_states[butt0] or button_states[butt2]):
+            # eliminate noise from joystick
+            # helps if analog axis is slightly being pushed
+            # we set a deadzone so that the motors don't trigger by a too-sensitive joystick
+            if abs(ax2val) < .05: 
+                speed = 0
+                setAndDriveLeftMotors(speed, False)
+                setAndDriveRightMotors(speed, False)
 
-	    # drive forwards
-	    	    
-    ##########################################
-    ##                                      ##
-    ##   Turning While Driving              ##
-    ##                                      ##
-    ##########################################
-
-    else: # we should be turning left or right
-	# eliminate noise from joystick
-        if abs(ax2val) < .05:
-            speed = 0
-            setAndDriveLeftMotors(speed, False)
-            setAndDriveRightMotors(speed, False)
-
-
-    ##########################################
-    ##                                      ##
-    ##   Drive Forward and Turn Left        ##
-    ##                                      ##
-    ##########################################
-    
-	# if right axis pressed up and left axis pressed left, move forward and turn left
-	elif (button_states[butt7] and (ax2val < 0)):
-	    # set left motor value to threshold
-
-	    print("Forward and left at {} ".format(ax2val))
-            ##########################################################################
-	    # set right motor value to a value above threshold proportional
-	    # to the joysick value, otherwise keep it at the same  speed
-	
-	    if ((ax2val * -1) > dynamic_turning):
-		setAndDriveLeftMotors(dynamic_turning, True)
-                setAndDriveRightMotors(ax2val*-1, True)
-            
-	    else:                                      #########################################################################
-		setAndDriveLeftMotors(ax2val*-1, True) ##                                                                     ##
-                setAndDriveRightMotors(ax2val*-1, True)## changed from dynamic turning to ax2val to maintain current speed    ##
-                                                       ## * this is probably what caused the motors to slow down outside      ##
-                                                       ## once a turn was made while moving and the remote control was used   ##
-                                                       ## to move forward, the speed went down                                ##
-                                                       ## * we'll test this                                                   ##
-                                                       ##                                                                     ##
-                                                       #########################################################################
-                ####################################################################
-	    # left motors at lower speed and right motors at highter speed
-	    # if the joystick is pushed further than threshold,
-	    # run all motors forward
-
-
-    ##########################################
-    ##                                      ##
-    ##   Drive Backward and Turn Left       ##
-    ##                                      ##
-    ##########################################     
-	# if right axis is pressed down and left axis is pressed left, move bacward and turn left
-        elif (button_states[butt5] and (ax2val < 0)):
-            # set left motor value to threshold
-            
-
-            print("Backward and left at {} ".format(ax2val))
-
-            # set right motor value to a value above threshold proportional
-            # to the joysick value, otherwise keep it at the same speed
-            # 
-            if ((ax2val * -1) > dynamic_turning):
-                setAndDriveLeftMotors(ax2val*-1, True)
-                setAndDriveRightMotors(dynamic_turning, True)
             else:
-                setAndDriveLeftMotors(ax2val*-1, True)
-                setAndDriveRightMotors(ax2val*-1, True)
+                #get motor value based on percent and set speed
+                # even though the ax2val is positive, because of the way the axis is setup, pressing
+                # up actually returns a negative floating point value and similarly, pressing down returns
+                # a positive floating point value (that we then multiply by 255 to get the motor speed).
+                # since ax2val is positive, we are setting the motors to drive backwards
+                 if ax2val > 0:
+                     print("Going backwards at {} ".format(ax2val))
+                     # drive backwards
+                     setAndDriveLeftMotors(abs(ax2val)*4, False) # we multiply by 4 because the max value returned from any axis is approx .25 
+                     setAndDriveRightMotors(abs(ax2val)*4, False) # allows us to get an actual percentage from the axis by making the max 1 not .25
 
-            # left motors at lower speed and right motors at highter speed
-            # if the joystick is pushed further than threshold
-            # run all motors backward
 
-    ##########################################
-    ##                                      ##
-    ##   Drive Forward and Turn Right       ##
-    ##                                      ##
-    ##########################################         
-	# if right axis is pressed up and left axis is pressed right, move forward and turn right
-        elif (button_states[butt7] and (ax2val > 0)):
-            # set right motor value to threshold
+            # we should be moving forwards
+            # (same logic as described above)
+                 elif ax2val < 0:
+                     print ("Going forwards at {} ".format(ax2val))
+                     setAndDriveLeftMotors(abs(ax2val)*(4), True) #here, we multiply by -4 just to convert the negative value for forwards to a positive value
+                     setAndDriveRightMotors(abs(ax2val)*(4), True)
 
-            print("Forward and right at {} ".format(ax2val))
+                # drive forwards
 
-            # set left motor value to a value above threshold proportional
-            # to the joysick value, otherwise  keep the same speed
-
-            if (ax2val > dynamic_turning):
-                setAndDriveLeftMotors(ax2val*-1, True)
-                setAndDriveRightMotors(dynamic_turning, True)
-            else:
-                setAndDriveLeftMotors(ax2val*-1, True)
-                setAndDriveRightMotors(ax2val*-1, True)
-
-            # right motors at lower speed and left motors at highter speed
-            # if the joystick is pushed further than threshold
-           
-
-            # run all motors forward
-            
         ##########################################
         ##                                      ##
-        ##   Drive Backward and Turn Right      ##
+        ##   Turning While Driving              ##
+        ##                                      ##
+        ##########################################
+
+        else: # we should be turning left or right
+            # eliminate noise from joystick
+            if abs(ax2val) < .05:
+                speed = 0
+                setAndDriveLeftMotors(speed, False)
+                setAndDriveRightMotors(speed, False)
+
+
+        ##########################################
+        ##                                      ##
+        ##   Drive Forward and Turn Left        ##
+        ##                                      ##
+        ##########################################
+
+            # if right axis pressed up and left axis pressed left, move forward and turn left
+            elif (button_states[butt7] and (ax2val < 0)):
+                # set left motor value to threshold
+
+                print("Forward and left at {} ".format(ax2val))
+                ##########################################################################
+                # set right motor value to a value above threshold proportional
+                # to the joysick value, otherwise keep it at the same  speed
+
+                if ((ax2val * -1) > dynamic_turning):
+                    setAndDriveLeftMotors(dynamic_turning, True)
+                    setAndDriveRightMotors(ax2val*-1, True)
+
+                else:                                      #########################################################################
+                    setAndDriveLeftMotors(ax2val*-1, True) ##                                                                     ##
+                    setAndDriveRightMotors(ax2val*-1, True)## changed from dynamic turning to ax2val to maintain current speed    ##
+                                                           ## * this is probably what caused the motors to slow down outside      ##
+                                                           ## once a turn was made while moving and the remote control was used   ##
+                                                           ## to move forward, the speed went down                                ##
+                                                           ## * we'll test this                                                   ##
+                                                           ##                                                                     ##
+                                                           #########################################################################
+                    ####################################################################
+                # left motors at lower speed and right motors at highter speed
+                # if the joystick is pushed further than threshold,
+                # run all motors forward
+
+
+        ##########################################
+        ##                                      ##
+        ##   Drive Backward and Turn Left       ##
+        ##                                      ##
+        ##########################################     
+            # if right axis is pressed down and left axis is pressed left, move bacward and turn left
+            elif (button_states[butt5] and (ax2val < 0)):
+                # set left motor value to threshold
+
+
+                print("Backward and left at {} ".format(ax2val))
+
+                # set right motor value to a value above threshold proportional
+                # to the joysick value, otherwise keep it at the same speed
+                # 
+                if ((ax2val * -1) > dynamic_turning):
+                    setAndDriveLeftMotors(ax2val*-1, True)
+                    setAndDriveRightMotors(dynamic_turning, True)
+                else:
+                    setAndDriveLeftMotors(ax2val*-1, True)
+                    setAndDriveRightMotors(ax2val*-1, True)
+
+                # left motors at lower speed and right motors at highter speed
+                # if the joystick is pushed further than threshold
+                # run all motors backward
+
+        ##########################################
+        ##                                      ##
+        ##   Drive Forward and Turn Right       ##
         ##                                      ##
         ##########################################         
-	# if right axis is pressed down and left axis is pressed right, move backward and turn right
-        elif (button_states[butt5] and (ax2val > 0)):
-            # set right motor value to threshold
-            lowmv = getMotorValue(dynamic_turning)
+            # if right axis is pressed up and left axis is pressed right, move forward and turn right
+            elif (button_states[butt7] and (ax2val > 0)):
+                # set right motor value to threshold
 
-            print("Backward and right at {} ".format(ax2val))
+                print("Forward and right at {} ".format(ax2val))
 
-            # set left motor value to a value above threshold proportional
-            # to the joysick value, otherwise keep the speed the same
+                # set left motor value to a value above threshold proportional
+                # to the joysick value, otherwise  keep the same speed
 
-            if (ax2val > dynamic_turning):
-                setAndDriveLeftMotors(ax2val, False)
-                setAndDriveRightMotors(dynamic_turning, False)
+                if (ax2val > dynamic_turning):
+                    setAndDriveLeftMotors(ax2val*-1, True)
+                    setAndDriveRightMotors(dynamic_turning, True)
+                else:
+                    setAndDriveLeftMotors(ax2val*-1, True)
+                    setAndDriveRightMotors(ax2val*-1, True)
+
+                # right motors at lower speed and left motors at highter speed
+                # if the joystick is pushed further than threshold
+
+
+                # run all motors forward
+
+            ##########################################
+            ##                                      ##
+            ##   Drive Backward and Turn Right      ##
+            ##                                      ##
+            ##########################################         
+            # if right axis is pressed down and left axis is pressed right, move backward and turn right
+            elif (button_states[butt5] and (ax2val > 0)):
+                # set right motor value to threshold
+                lowmv = getMotorValue(dynamic_turning)
+
+                print("Backward and right at {} ".format(ax2val))
+
+                # set left motor value to a value above threshold proportional
+                # to the joysick value, otherwise keep the speed the same
+
+                if (ax2val > dynamic_turning):
+                    setAndDriveLeftMotors(ax2val, False)
+                    setAndDriveRightMotors(dynamic_turning, False)
+                else:
+                    setAndDriveLeftMotors(ax2val, False)
+                    setAndDriveRightMotors(ax2val, False)
+
+                # right motors at lower speed and left motors at highter speed
+                # if the joystick is pushed further than threshold
+                       # run all motors forward
+
+
+
+            elif ax2val < 0:
+                # turn left
+                print("Turning left at {} ".format(ax2val))
+                setAndDriveLeftMotors(turning, False)
+                setAndDriveRightMotors(ax2val*-1, True)
+
+                # left motors at lower speed and right motors at highter speed
+
+                # run left motors backwards and right motors forwards
+
+
+            elif ax2val > 0 :
+                # turn right
+                print("Turning right at {} ".format(ax2val))
+
+                setAndDriveLeftMotors(ax2val, True)
+                setAndDriveRightMotors(turning, False)
+                # right motors at lower speed and left motors at highter speed
+
+
+                # run right motors backwards and left motors forwards
+
+
             else:
-                setAndDriveLeftMotors(ax2val, False)
-                setAndDriveRightMotors(ax2val, False)
-                
-            # right motors at lower speed and left motors at highter speed
-            # if the joystick is pushed further than threshold
-                   # run all motors forward
-       
+                # axis is at 0, should we stop??
+                print("Here is a good spot to stop")
 
+        # Things to think about:
+        # how can we change between turning on the spot and turning while moving forward or back?
+        # what other controls might be useful?
 
-        elif ax2val < 0:
-	    # turn left
-            print("Turning left at {} ".format(ax2val))
-	    
-
-            setAndDriveLeftMotors(turning, False)
-            setAndDriveRightMotors(ax2val*-1, True)
-            
-	    # left motors at lower speed and right motors at highter speed
-	    
-	    # run left motors backwards and right motors forwards
-	    
-
-        elif ax2val > 0 :
-	    # turn right
-            print("Turning right at {} ".format(ax2val))
-
-            setAndDriveLeftMotors(ax2val, True)
-            setAndDriveRightMotors(turning, False)
-	    # right motors at lower speed and left motors at highter speed
-            
-
-	    # run right motors backwards and left motors forwards
-	    
-
-        else:
-            # axis is at 0, should we stop??
-            print("Here is a good spot to stop")
-
-    # Things to think about:
-    # how can we change between turning on the spot and turning while moving forward or back?
-    # what other controls might be useful?
-
-    # check if anything has hit the event queue
-    try:
+        # check if anything has hit the event queue
+        try:
             # read
             evbuf = jsdev.read(8)
             if evbuf:
-                time, value, intype, number = struct.unpack('IhBB', evbuf)
+                newtime, value, intype, number = struct.unpack('IhBB', evbuf)
 
-                if intype & 0x01:
-                    button = button_map[number]
-                    if button:
-                        button_states[button] = value
+            if intype & 0x01:
+                button = button_map[number]
+                if button:
+                    button_states[button] = value
 
-                if intype & 0x02:
-                    axis = axis_map[number]
-                    if axis:
-                        fvalue = value / 32767.0
-                        axis_states[axis] = fvalue
+            if intype & 0x02:
+                axis = axis_map[number]
+                if axis:
+                    fvalue = value / 32767.0
+                    axis_states[axis] = fvalue
 
-    except:
-        pass
+        except:
+            pass
+
 
 print("Code stopping...")

@@ -10,11 +10,13 @@ import numpy as np
 import cv2
 import pyrealsense as pyrs
 import datetime
-from PIL import Image
+
+# IMPORT FOR INFARED
+#from PIL import Image
 
 
 #imports for motor control
-import time as TIME
+import time
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import atexit
 import struct
@@ -544,7 +546,7 @@ while running:
             # read
             evbuf = jsdev.read(8)
             if evbuf:
-                time, value, intype, number = struct.unpack('IhBB', evbuf)
+                TIME, value, intype, number = struct.unpack('IhBB', evbuf)
 
                 if intype & 0x01:
                     button = button_map[number]
