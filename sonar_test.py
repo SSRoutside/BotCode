@@ -2,7 +2,8 @@
 import Adafruit_GPIO as GPIO
 import time
 
-GPIO.setmode(GPIO.BCM)
+# grab a GPIO adapter from the current platform
+gpio = GPIO.get_platform_gpio()
 
 # pin numbers for TRIG and ECHO as connected on the UP board
 TRIG = 23
@@ -11,34 +12,37 @@ ECHO = 24
 print("Distance Measurement in progress.")
 
 # set trigger pin as output and echo pin as input
-GPIO.setup(TRIG,GPIO.OUT)
-GPIO.setup(ECHO,GPIO.IN)
+gpio.setup(TRIG,GPIO.OUT)
+gpio.setup(ECHO,GPIO.IN)
 
 # set trigger pin to low (0V)
-GPIO.output(TRIG, False)
+gpio.output(TRIG, False)
 
 # wait for sensor to settle (ensures low setting)
-print("Waiting For Sensor To Settle") 
+print("Waiting For Sensor To Settle")
 time.sleep(2)
+print("done waiting")
 
 # set trigger pin high for 10 nano-seconds
 # sensor will send 8 sound-bursts
-GPIO.output(TRIG, True)
+gpio.output(TRIG, True)
 time.sleep(0.00001)
 # set low again
-GPIO.output(TRIG, False)
+gpio.output(TRIG, False)
+print('dead yet?')
 
 #### section monitors time needed to "listen" to
 #### the rebounding signal
 
 # record last low timestamp for ECHO pin (pulse_start)
-while GPIO.input(ECHO) == 0:
+while gpio.input(ECHO) == GPIO.LOW:
     pulse_start = time.time()
 
 # record last high timestamp for ECHO pin (pulse_end)
-while GPIO.input(ECHO) == 1:
+while gpio.input(ECHO) == GPIO.HIGH:
     pulse_end = time.time()
 
+print('still not dead')
 # calculate difference between pulse_start and pulse_end
 # to determine the duration of the pulse
 pulse_duration = pulse_end - pulse_start
