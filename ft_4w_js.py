@@ -293,15 +293,15 @@ while running:
 		setAndDriveLeftMotors(dynamic_turning, True)
                 setAndDriveRightMotors(ax2val*-1, True)
             
-	    else:                                      #########################################################################
-		setAndDriveLeftMotors(ax2val*-1, True) ##                                                                     ##
-                setAndDriveRightMotors(ax2val*-1, True)## changed from dynamic turning to ax2val to maintain current speed    ##
-                                                       ## * this is probably what caused the motors to slow down outside      ##
-                                                       ## once a turn was made while moving and the remote control was used   ##
-                                                       ## to move forward, the speed went down                                ##
-                                                       ## * we'll test this                                                   ##
-                                                       ##                                                                     ##
-                                                       #########################################################################
+	    else:                                       #########################################################################
+		setAndDriveLeftMotors(ax2val*-1, True)  ##                                                                     ##
+                setAndDriveRightMotors(ax2val*-1, True) ## changed from dynamic turning to ax2val to maintain current speed    ##
+                                                        ## * this is probably what caused the motors to slow down outside      ##
+                                                        ## once a turn was made while moving and the remote control was used   ##
+                                                        ## to move forward, the speed went down                                ##
+                                                        ## * we'll test this                                                   ##
+                                                        ##                                                                     ##
+                                                        #########################################################################
                 ####################################################################
 	    # left motors at lower speed and right motors at highter speed
 	    # if the joystick is pushed further than threshold,
