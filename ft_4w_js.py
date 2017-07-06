@@ -2,9 +2,10 @@
 # Based on information from:
 # https://www.kernel.org/doc/Documentation/input/joystick-api.txt
 
+#import motor_init.py from BotCode
+from motor_init import *
+
 import time as TIME
-from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
-import atexit
 import struct
 import fcntl
 from fcntl import ioctl
@@ -18,31 +19,6 @@ print('Available devices:')
 for fn in os.listdir('/dev/input'):
     if fn.startswith('js'):
         print('  /dev/input/%s' % fn)
-
-# From Adafruit MotorHat example code
-# create a default object, no changes to I2C address or frequency
-mh = Adafruit_MotorHAT(addr=0x60)
-
-# get each motor
-myMotor1 = mh.getMotor(1) # right motor
-myMotor2 = mh.getMotor(3) # left motor
-myMotor3 = mh.getMotor(2) # right motor
-myMotor4 = mh.getMotor(4) # left motor
-
-# auto disable motors on shutdown
-def turnOffMotors():
-        mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
-        mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
-	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
-	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
-
-atexit.register(turnOffMotors)
-
-# get motor values between 0 and 255
-def getMotorValue(percent):
-        mv = percent * 255
-        mv = int(mv)
-        return mv
 
 # We'll store the states here.
 axis_states = {}
