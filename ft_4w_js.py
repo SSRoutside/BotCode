@@ -16,9 +16,11 @@ from fcntl import ioctl
 # Iterate over the joystick devices.
 print('Available devices:')
 
-for fn in os.listdir('/dev/input'):
+###############################################
+for fn in os.listdir('/dev/input'): #whats dev
     if fn.startswith('js'):
         print('  /dev/input/%s' % fn)
+        #######################################
 
 # We'll store the states here.
 axis_states = {}
@@ -56,14 +58,15 @@ button_names = {
 
 axis_map = []
 button_map = []
-
+##################################################################
 # Open the joystick device.
 fn = '/dev/input/js0'
 print('Opening %s...' % fn)
-jsdev = open(fn, 'rb')
+jsdev = open(fn, 'rb') #why does it need to say "read binary"
+                       #also, what is fn
 
-# set to non-blocking!!!
-flag = fcntl.fcntl(jsdev, fcntl.F_GETFD)
+# set to non-blocking!!! #what is non-blocking
+flag = fcntl.fcntl(jsdev, fcntl.F_GETFD) #what does this do
 fcntl.fcntl(jsdev, fcntl.F_SETFL, flag | os.O_NONBLOCK)
 
 # Get number of axes and buttons.
@@ -96,8 +99,50 @@ for btn in buf[:num_buttons]:
 print('{:d} axes found '.format(num_axes))
 
 print('{:d} buttons found '.format(num_buttons))
+#####################################################################
 
-# Main control loop
+
+
+#Jesus's work starts here:
+
+'''
+Idea is to simplify the initial code into a series of functions that are called, thereby reducing repetition of code. 
+'''
+
+
+def setAndDriveRightMotors(speed, Forward):
+
+    mv = getMotorValue(speed)
+
+    myMotor3.setSpeed(mv)
+    myMotor1.setSpeed(mv)
+
+    if Forward == True:
+        myMotor3.run(Adafruit_MotorHAT.FORWARD)
+        myMotor1.run(Adafruit_MotorHAT.FORWARD)
+
+    else:
+        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+        
+def setAndDriveLeftMotors(speed, Forward):
+
+    mv = getMotorValue(speed)
+
+    myMotor4.setSpeed(mv)
+    myMotor2.setSpeed(mv)
+
+    if Forward == True:
+        myMotor4.run(Adafruit_MotorHAT.FORWARD)
+        myMotor2.run(Adafruit_MotorHAT.FORWARD)
+
+    else:
+        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+
+
+
+# main control loop
 # The following code is event-based. That means the values are ONLY updated on change.
 
 # It might be more intuitive to update all buttons/axes in a continuous loop.
@@ -140,8 +185,11 @@ while running:
     # Example code:
 
     # get value from axis 2
+    # axis 2 is comprised of the bottom 2 joysticks on the controller
+    # the one on the left controls L/R and the one on the right controls U/D
+    # this combination together we call axis 2
     ax2 = axis_map[2]
-    ax2val = axis_states[ax2]
+    ax2val = axis_states[ax2] #from the event-based approach, this ####################################
 
     # check button states
     butt0 = button_map[0]
@@ -154,222 +202,217 @@ while running:
     # There are several methods to determine which combination of button/axes has been set!
     # this is just one example
 
+    #############################
+    ##                         ##
+    ##     Kill Switch         ##
+    ##                         ##
+    #############################
+    
     # hit r2 and l2 as a "kill switch"
     if (button_states[butt4] and button_states[butt5]):
 	break
 
-    elif button_states[butt6]:
-	myMotor1.setSpeed(0)
-	myMotor2.setSpeed(0)
-	myMotor3.setSpeed(0)
-        myMotor4.setSpeed(0)
+    #############################
+    ##                         ##
+    ##     Brakes              ##
+    ##                         ##
+    #############################
+    
+    elif button_states[butt6]: #the brakes
+        speed = 0
+        setAndDriveLeftMotors(speed, False)
+        setAndDriveRightMotors(speed, False)
 
-	myMotor1.run(Adafruit_MotorHAT.FORWARD)
-	myMotor2.run(Adafruit_MotorHAT.FORWARD)
-	myMotor3.run(Adafruit_MotorHAT.FORWARD)
-        myMotor4.run(Adafruit_MotorHAT.FORWARD)
+    #########################################
+    ##                                     ##
+    ##     Driving Forward/Backwards       ##
+    ##                                     ##
+    #########################################
 
     elif (button_states[butt0] or button_states[butt2]):
 	# eliminate noise from joystick
-	if abs(ax2val) < .05:
-	    myMotor1.setSpeed(0)
-            myMotor2.setSpeed(0)
-            myMotor3.setSpeed(0)
-            myMotor4.setSpeed(0)
+        # helps if analog axis is slightly being pushed
+        # we set a deadzone so that the motors don't trigger by a too-sensitive joystick
+	if abs(ax2val) < .05: 
+            speed = 0
+            setAndDriveLeftMotors(speed, False)
+            setAndDriveRightMotors(speed, False)
 
 	else:
 	    #get motor value based on percent and set speed
-	    mv = getMotorValue(ax2val)
-	    myMotor1.setSpeed(mv*4)
-	    myMotor2.setSpeed(mv*4)
-	    myMotor3.setSpeed(mv*4)
-	    myMotor4.setSpeed(mv*4)
+            # even though the ax2val is positive, because of the way the axis is setup, pressing
+            # up actually returns a negative floating point value and similarly, pressing down returns
+            # a positive floating point value (that we then multiply by 255 to get the motor speed).
+            # since ax2val is positive, we are setting the motors to drive backwards
+	     if ax2val > 0:
+                 print("Going backwards at {} ".format(ax2val))
+	         # drive backwards
+                 setAndDriveLeftMotors(abs(ax2val)*4, False) # we multiply by 4 because the max value returned from any axis is approx .25 
+                 setAndDriveRightMotors(abs(ax2val)*4, False) # allows us to get an actual percentage from the axis by making the max 1 not .25
+	   
 
-        # we should be moving forwards or backwards
-        if ax2val > 0:
-            print("Going backwards at {} ".format(ax2val))
-	    # drive backwards
-	    myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-	    myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-	    myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
-
-        elif ax2val < 0:
-            print ("Going forwards at {} ".format(ax2val))
-	    mv = getMotorValue(ax2val*-1)
-            myMotor1.setSpeed(mv*4)
-            myMotor2.setSpeed(mv*4)
-            myMotor3.setSpeed(mv*4)
-            myMotor4.setSpeed(mv*4)
+        # we should be moving forwards
+        # (same logic as described above)
+             elif ax2val < 0:
+                 print ("Going forwards at {} ".format(ax2val))
+	         setAndDriveLeftMotors(abs(ax2val)*(4), True) #here, we multiply by -4 just to convert the negative value for forwards to a positive value
+                 setAndDriveRightMotors(abs(ax2val)*(4), True)
 
 	    # drive forwards
-	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
-	    myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
-
+	    	    
+    ##########################################
+    ##                                      ##
+    ##   Turning While Driving              ##
+    ##                                      ##
+    ##########################################
 
     else: # we should be turning left or right
 	# eliminate noise from joystick
         if abs(ax2val) < .05:
-            myMotor1.setSpeed(0)
-            myMotor2.setSpeed(0)
-            myMotor3.setSpeed(0)
-            myMotor4.setSpeed(0)
-
-	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
-            myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
+            speed = 0
+            setAndDriveLeftMotors(speed, False)
+            setAndDriveRightMotors(speed, False)
 
 
-	# if right 1 and joystick pressed left, turn left and move forward
+    ##########################################
+    ##                                      ##
+    ##   Drive Forward and Turn Left        ##
+    ##                                      ##
+    ##########################################
+    
+	# if right axis pressed up and left axis pressed left, move forward and turn left
 	elif (button_states[butt7] and (ax2val < 0)):
-	    # set low motor value to threshold
-	    lowmv = getMotorValue(dynamic_turning)
+	    # set left motor value to threshold
 
 	    print("Forward and left at {} ".format(ax2val))
-	    # set high motor value to a value above threshold proportional
-	    # to the joysick value, otherwise set it to the threshold
-	    # value
+            ##########################################################################
+	    # set right motor value to a value above threshold proportional
+	    # to the joysick value, otherwise keep it at the same  speed
+	
 	    if ((ax2val * -1) > dynamic_turning):
-		highmv = getMotorValue(ax2val * -1)
-	    else:
-		highmv = lowmv
-
+		setAndDriveLeftMotors(dynamic_turning, True)
+                setAndDriveRightMotors(ax2val*-1, True)
+            
+	    else:                                      #########################################################################
+		setAndDriveLeftMotors(ax2val*-1, True) ##                                                                     ##
+                setAndDriveRightMotors(ax2val*-1, True)## changed from dynamic turning to ax2val to maintain current speed    ##
+                                                       ## * this is probably what caused the motors to slow down outside      ##
+                                                       ## once a turn was made while moving and the remote control was used   ##
+                                                       ## to move forward, the speed went down                                ##
+                                                       ## * we'll test this                                                   ##
+                                                       ##                                                                     ##
+                                                       #########################################################################
+                ####################################################################
 	    # left motors at lower speed and right motors at highter speed
-	    # if the joystick is pushed further than threshold
-            myMotor1.setSpeed(highmv)
-            myMotor2.setSpeed(lowmv)
-            myMotor3.setSpeed(highmv)
-            myMotor4.setSpeed(lowmv)
-
+	    # if the joystick is pushed further than threshold,
 	    # run all motors forward
-	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
-	    myMotor2.run(Adafruit_MotorHAT.FORWARD)
-            myMotor3.run(Adafruit_MotorHAT.FORWARD)
-	    myMotor4.run(Adafruit_MotorHAT.FORWARD)
 
-	# if right 2 and joystick pressed left, turn left and move backward
+
+    ##########################################
+    ##                                      ##
+    ##   Drive Backward and Turn Left       ##
+    ##                                      ##
+    ##########################################     
+	# if right axis is pressed down and left axis is pressed left, move bacward and turn left
         elif (button_states[butt5] and (ax2val < 0)):
-            # set low motor value to threshold
-            lowmv = getMotorValue(dynamic_turning)
+            # set left motor value to threshold
+            
 
             print("Backward and left at {} ".format(ax2val))
 
-            # set high motor value to a value above threshold proportional
-            # to the joysick value, otherwise set it to the threshold
-            # value
+            # set right motor value to a value above threshold proportional
+            # to the joysick value, otherwise keep it at the same speed
+            # 
             if ((ax2val * -1) > dynamic_turning):
-                highmv = getMotorValue(ax2val * -1)
+                setAndDriveLeftMotors(ax2val*-1, True)
+                setAndDriveRightMotors(dynamic_turning, True)
             else:
-                highmv = lowmv
+                setAndDriveLeftMotors(ax2val*-1, True)
+                setAndDriveRightMotors(ax2val*-1, True)
 
             # left motors at lower speed and right motors at highter speed
             # if the joystick is pushed further than threshold
-            myMotor1.setSpeed(highmv)
-            myMotor2.setSpeed(lowmv)
-            myMotor3.setSpeed(highmv)
-            myMotor4.setSpeed(lowmv)
-
             # run all motors backward
-            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
-	# if right 1 and joystick pressed right, turn right and move forward
+    ##########################################
+    ##                                      ##
+    ##   Drive Forward and Turn Right       ##
+    ##                                      ##
+    ##########################################         
+	# if right axis is pressed up and left axis is pressed right, move forward and turn right
         elif (button_states[butt7] and (ax2val > 0)):
-            # set low motor value to threshold
-            lowmv = getMotorValue(dynamic_turning)
+            # set right motor value to threshold
 
             print("Forward and right at {} ".format(ax2val))
 
-            # set high motor value to a value above threshold proportional
-            # to the joysick value, otherwise set it to the threshold
-            # value
+            # set left motor value to a value above threshold proportional
+            # to the joysick value, otherwise  keep the same speed
+
             if (ax2val > dynamic_turning):
-                highmv = getMotorValue(ax2val)
+                setAndDriveLeftMotors(ax2val*-1, True)
+                setAndDriveRightMotors(dynamic_turning, True)
             else:
-                highmv = lowmv
+                setAndDriveLeftMotors(ax2val*-1, True)
+                setAndDriveRightMotors(ax2val*-1, True)
 
             # right motors at lower speed and left motors at highter speed
             # if the joystick is pushed further than threshold
-            myMotor1.setSpeed(lowmv)
-            myMotor2.setSpeed(highmv)
-            myMotor3.setSpeed(lowmv)
-            myMotor4.setSpeed(highmv)
+           
 
             # run all motors forward
-            myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
-            myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
-
-	# if right 2 and joystick pressed right, turn right and move backward
+            
+        ##########################################
+        ##                                      ##
+        ##   Drive Backward and Turn Right      ##
+        ##                                      ##
+        ##########################################         
+	# if right axis is pressed down and left axis is pressed right, move backward and turn right
         elif (button_states[butt5] and (ax2val > 0)):
-            # set low motor value to threshold
+            # set right motor value to threshold
             lowmv = getMotorValue(dynamic_turning)
 
             print("Backward and right at {} ".format(ax2val))
 
-            # set high motor value to a value above threshold proportional
-            # to the joysick value, otherwise set it to the threshold
-            # value
-            if (ax2val > dynamic_turning):
-                highmv = getMotorValue(ax2val)
-            else:
-                highmv = lowmv
+            # set left motor value to a value above threshold proportional
+            # to the joysick value, otherwise keep the speed the same
 
+            if (ax2val > dynamic_turning):
+                setAndDriveLeftMotors(ax2val, False)
+                setAndDriveRightMotors(dynamic_turning, False)
+            else:
+                setAndDriveLeftMotors(ax2val, False)
+                setAndDriveRightMotors(ax2val, False)
+                
             # right motors at lower speed and left motors at highter speed
             # if the joystick is pushed further than threshold
-            myMotor1.setSpeed(lowmv)
-            myMotor2.setSpeed(highmv)
-            myMotor3.setSpeed(lowmv)
-            myMotor4.setSpeed(highmv)
-
-            # run all motors forward
-            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+                   # run all motors forward
+       
 
 
         elif ax2val < 0:
 	    # turn left
             print("Turning left at {} ".format(ax2val))
-	    highmv = getMotorValue(ax2val * -1)
-	    lowmv = getMotorValue(turning)
+	    
 
+            setAndDriveLeftMotors(turning, False)
+            setAndDriveRightMotors(ax2val*-1, True)
+            
 	    # left motors at lower speed and right motors at highter speed
-	    myMotor1.setSpeed(highmv)
-	    myMotor2.setSpeed(lowmv)
-	    myMotor3.setSpeed(highmv)
-            myMotor4.setSpeed(lowmv)
-
+	    
 	    # run left motors backwards and right motors forwards
-	    myMotor1.run(Adafruit_MotorHAT.FORWARD)
-	    myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-	    myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+	    
 
         elif ax2val > 0 :
 	    # turn right
             print("Turning right at {} ".format(ax2val))
-	    highmv = getMotorValue(ax2val)
-	    lowmv = getMotorValue(turning)
 
+            setAndDriveLeftMotors(ax2val, True)
+            setAndDriveRightMotors(turning, False)
 	    # right motors at lower speed and left motors at highter speed
-            myMotor1.setSpeed(lowmv)
-            myMotor2.setSpeed(highmv)
-	    myMotor3.setSpeed(lowmv)
-            myMotor4.setSpeed(highmv)
+            
 
 	    # run right motors backwards and left motors forwards
-	    myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
-            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
+	    
 
         else:
             # axis is at 0, should we stop??
