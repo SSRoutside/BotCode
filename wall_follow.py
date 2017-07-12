@@ -119,8 +119,8 @@ front_log = []
 back_log = []
 
 # check frames to see if they look as expected
-print(FRONT_dist_frame)
-print(BACK_dist_frame)
+print(f_dist_frame)
+print(b_dist_frame)
 
 # begin main while loop
 while count <= 400:
@@ -134,12 +134,12 @@ while count <= 400:
     # make drive decisions every 10 loops
     if mod_num == 0:
         # save distances in the last space in the array
-        f_dist_frame[9] = f_dist
-        b_dist_frame[9] = b_dist
+        f_dist_frame[0:9] = f_dist
+        b_dist_frame[0:9] = b_dist
 
         # use weighted average on each frame to determine average distance
-        f_dist_av = np.average(f_dist_frame, range(1,10), weights=range(1,10))
-        b_dist_av = np.average(b_dist_frame, range(1,10), weights=range(1,10))
+        f_dist_av = np.average(f_dist_frame)
+        b_dist_av = np.average(b_dist_frame)
 
         # append log lists
         front_log.append(f_dist_av)
@@ -196,40 +196,45 @@ while count <= 400:
 
         # both are good, so simply drive forward
         if wall_check and align_check:
-            setAndDriveRigt(.80, True)
-            setAndDriveLeft(.80, True)
+            SetAndDriveRigt(.80, True)
+            SetAndDriveLeft(.80, True)
+            print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
         # Priority 1: fix distance to wall
         elif (too_close and right) or (too_far and left):
             # commands similar to dynamic turn to the left
-            setAndDriveRight(.50, True)
-            setAndDriveLeft(.90, True)
+            SetAndDriveRight(.50, True)
+            SetAndDriveLeft(.90, True)
+            print('correcting to left')
 
         elif (too_far and right) or (too_close and left):
             # commands similar to dynamic turn to the right
-            setAndDriveRight(.90, True)
-            setAndDriveLeft(.50, True)
+            SetAndDriveRight(.90, True)
+            SetAndDriveLeft(.50, True)
+            print('correcting to right')
 
         # making it to this point means distance is good, but alignment is not
         # Priority 2: align the robot to drive straight
         elif (align_back and right) or (align_front and left):
             # commands similar to static turn back and left
-            setAndDriveRight(.90, False)
-            setAndDriveLeft(.30, True)
+            SetAndDriveRight(.90, False)
+            SetAndDriveLeft(.30, True)
+            print('pivoting left')
 
         elif (align_front and right) or (align_back and left):
             # commands similar to static turn back and right
-            setAndDriveRight(.30, True)
-            setAndDriveLeft(.90, False)
+            SetAndDriveRight(.30, True)
+            SetAndDriveLeft(.90, False)
+            print('pivoting right')
 
 ######## end motor command section
 
     # ohterwise, just update the distance frames
     else:
         # save distances into resepctive arrays 
-        f_dist_frame[mod_num - 1] = f_dist
-        b_dist_frame[mod_num - 1] = b_dist
+        f_dist_frame[0:mod_num - 1] = f_dist
+        b_dist_frame[0:mod_num - 1] = b_dist
         
     # append count
     count += 1
