@@ -45,8 +45,8 @@ LF_ECHO = mraa.Gpio(32)
 RB_TRIG = mraa.Gpio(37)
 RB_ECHO = mraa.Gpio(38)
 
-LB_TRIG = mraa.Gpio(23)
-LB_ECHO = mraa.Gpio(24)
+LB_TRIG = mraa.Gpio(36)
+LB_ECHO = mraa.Gpio(40)
 
 # set trigger pins low
 RF_TRIG.write(0)
