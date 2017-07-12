@@ -25,23 +25,26 @@ def SetAndDriveRight(speed, forward):
     myMotor2.setSpeed(MV)
 
     if forward:
-            myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
+        myMotor1.run(Adafruit_MotorHAT.FORWARD)
+        myMotor2.run(Adafruit_MotorHAT.FORWARD)
     else:
-            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor2.run(Adafruit_MotorFAT.BACKWARD)
+        myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor2.run(Adafruit_MotorFAT.BACKWARD)
 
 
 # used to set speed and direction of Left Motor Pairs
 def SetAndDriveLeft(speed, forward):
+    MV = getMotorValue(speed)
 
+    myMotor3.setSpeed(MV)
+    myMotor4.setSpeed(MV)
 
-        if forward:
-            myMotor3.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
-        else:
-            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+    if forward:
+        myMotor3.run(Adafruit_MotorHAT.FORWARD)
+        myMotor4.run(Adafruit_MotorHAT.FORWARD)
+    else:
+        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
 # auto disable motors on shutdown
 def turnOffMotors():
