@@ -48,6 +48,20 @@ RB_ECHO = mraa.Gpio(38)
 LB_TRIG = mraa.Gpio(36)
 LB_ECHO = mraa.Gpio(40)
 
+# set trigger pins as output and echo pins as input
+RF_TRIG.dir(mraa.DIR_OUT)
+RF_ECHO.dir(mraa.DIR_IN)
+
+LF_TRIG.dir(mraa.DIR_OUT)
+LF_ECHO.dir(mraa.DIR_IN)
+
+RB_TRIG.dir(mraa.DIR_OUT)
+RB_ECHO.dir(mraa.DIR_IN)
+
+LB_TRIG.dir(mraa.DIR_OUT)
+LB_ECHO.dir(mraa.DIR_IN)
+
+
 # set trigger pins low
 RF_TRIG.write(0)
 LF_TRIG.write(0)
