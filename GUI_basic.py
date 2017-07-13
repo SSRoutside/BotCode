@@ -1,5 +1,5 @@
 import logging
-
+import cone_detection
 
 logging.basicConfig(level=logging.INFO)
 
@@ -66,13 +66,16 @@ while check2 == True:
 		print("Well okay then, have fun thinking up a unique name for each picture... ")
 		check2 = False
 
+mstart = 2000
 
 with pyrs.Service() as a:
  
     dev = pyrs.Device()
-	#with pyrs.Service() as a, pyrs.Device() as dev:
 
-    dev.apply_ivcam_preset(0)
+    #dev.apply_ivcam_preset(0)
+    #dev.set_device_option(11, 1)
+    #dev.set_device_option(10,1)
+    #dev.set_device_option(31,1)
 
     cnt = 0
     last = time.time()
@@ -124,7 +127,8 @@ with pyrs.Service() as a:
 
     #exposure
    # dev.set_device_option(30, 3)
-
+    
+    cone_detection.greeting()
 
     while True:
 
@@ -132,20 +136,19 @@ with pyrs.Service() as a:
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
             break
-        gain = cv2.getTrackbarPos('Gain','Calibration')
-        exposure = cv2.getTrackbarPos('Exposure','Calibration')
-        e_switch = cv2.getTrackbarPos(emitter_switch,'Calibration')
+     
+        #gain = cv2.getTrackbarPos('Gain','Calibration')
+        #exposure = cv2.getTrackbarPos('Exposure','Calibration')
+        #e_switch = cv2.getTrackbarPos(emitter_switch,'Calibration')
  
-        if e_switch == 0:
-            dev.set_device_option(31,0)
-            dev.set_device_option(29, gain)
-            dev.set_device_option(30, exposure)
-        else:
-            dev.set_device_option(31,1)
-            dev.set_device_option(29, gain)
-            dev.set_device_option(30, exposure)
-
-
+        #if e_switch == 0:
+        #    dev.set_device_option(31,0)
+        #    dev.set_device_option(29, gain)
+        #    dev.set_device_option(30, exposure)
+        #else:
+        #    dev.set_device_option(31,1)
+        #    dev.set_device_option(29, gain)
+        #    dev.set_device_option(30, exposure)
 
 
 	cnt += 1
@@ -165,11 +168,9 @@ with pyrs.Service() as a:
 	d_im = dev.depth*0.05
 
 	d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
-
-	cd = np.concatenate((c,d_im_col), axis=1)
+	cd = np.concatenate((rgb_im,d_im_col), axis=1)
 
 	cv2.putText(cd, str(fps_smooth)[:4], (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0))
-
                 
         cv2.imshow('', cd)
         input = cv2.waitKey(1)
@@ -180,7 +181,12 @@ with pyrs.Service() as a:
 		#if cv2.waitKey(1) & 0xFF == ord('q'):
 		#    break
 		#elif (0xFF == ord('a')):
-	elif (input == ord('a')):
+        elif (input == ord('m')):
+            print('changing white balance')
+            mstart = mstart + 1000
+            dev.set_device_option(11,mstart)
+
+        elif (input == ord('a')):
 		print('got here')
 		os.chdir(final_directory)
 
@@ -205,6 +211,6 @@ with pyrs.Service() as a:
 			# What about having the user type a new filename every time we save?
 			# Jesus: I like this idea. Gives the user a bit more freedom. Downside is that we don't know if its tree 6 or tree 7. Checking to see if the filename already exists would solve that probl$
 
-	elif (input == -1):
+        elif (input == -1):
 		continue
 
