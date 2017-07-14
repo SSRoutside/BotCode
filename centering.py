@@ -101,7 +101,7 @@ while count <= 400
         elif left:
             # too far left, drive right to get to center
             # commands similar to dynamic turn to the right
-            SetAndDriveRight(.30, True)
+            SetAndDriveRight(.10, True)
             SetAndDriveLeft(.90, True)
             print('correcting to right')
 
@@ -109,17 +109,13 @@ while count <= 400
             # too far right, drive left to get to center
             # commands similar to dynamic turn to the left
             SetAndDriveRight(.90, True)
-            SetAndDriveLeft(.30, True)
+            SetAndDriveLeft(.10, True)
             print('correcting to left')
 
-        # making it to this point means distance is good, but alignment is not
-        # Priority 2: align the robot to drive straight
-        # direction doesn't matter as much here (unlike wall_follow.py)
-        # there will be only one routine
-        elif not centered:
+        elif not align_check:
             # commands similar to static turn back and left
-            SetAndDriveRight(.90, False)
-            SetAndDriveLeft(.30, True)
+            SetAndDriveRight(.90, True)
+            SetAndDriveLeft(.10, True)
             print('pivoting left')
  
     # otherwise, just update the distance frames

@@ -147,14 +147,14 @@ while count <= 400:
         # Priority 2: align the robot to drive straight
         elif (align_back and right) or (align_front and left):
             # commands similar to static turn back and left
-            SetAndDriveRight(.90, False)
-            SetAndDriveLeft(.30, True)
+            SetAndDriveRight(.90, True)
+            SetAndDriveLeft(.10, True)
             print('pivoting left')
 
         elif (align_front and right) or (align_back and left):
             # commands similar to static turn back and right
-            SetAndDriveRight(.30, True)
-            SetAndDriveLeft(.90, False)
+            SetAndDriveRight(.10, True)
+            SetAndDriveLeft(.90, True)
             print('pivoting right')
 
 ######## end motor command section
