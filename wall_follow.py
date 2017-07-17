@@ -51,7 +51,7 @@ print(f_dist_frame)
 print(b_dist_frame)
 
 # begin main while loop
-while count <= 400:
+while count <= 1000:
 
     mod_num = count % 10
 
