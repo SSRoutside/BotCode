@@ -298,7 +298,7 @@ def find_cone(image):
     #cv2.destroyAllWindows()
 
         return contour, cone_spotted
-  40  return edge, cone_spotted
+    return edge, cone_spotted
 
 #read the image
 #image = cv2.imread('TEST.jpg')
