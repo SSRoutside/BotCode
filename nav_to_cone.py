@@ -8,9 +8,10 @@ import datetime
 import cv2
 import cone_detection
 #to show the image
+
 from matplotlib import pyplot as plt
 import numpy as np
-from motor_init import *
+import motor_init
 
 
 
@@ -72,15 +73,18 @@ with pyrs.Service() as a:
 ##################################################
     #    cv2.imshow('raw', c)
         rgb_im, cone_present = cone_detection.find_cone(rgb_im) #rgb
-        if cone_present == False:
-            print 'spinning to locate cone'    
-            print(cone_present)
-         #spin til you find a cone
-
         if cone_present == True:
-            print 'spotted cone, moving forward'   
+            print 'cone spotted, moving forward'    
+            print(cone_present)
+            
+            motor_init.SetAndDriveLeft(.4,True)
+            motor_init.SetAndDriveRight(.4,False)
 
+        if cone_present == False:
+            print 'spinning to locate cone'   
 
+            motor_init.SetAndDriveLeft(.4,False)
+            motor_init.SetAndDriveRight(.4,False)
 
         d = dev.depth * dev.depth_scale * 1000
         d_im = dev.depth*0.05
@@ -107,3 +111,5 @@ with pyrs.Service() as a:
         elif (input == -1):
                 continue
     
+    print("heeeeeeeeeeeeeeeeeeeeyyyy")
+    motor_init.turnOffMotors()
