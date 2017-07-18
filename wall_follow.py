@@ -32,7 +32,7 @@ else:
     right = True
     left = False
 
-# initialize loop count 
+# initialize loop count
 count = 1
 # initialize arrays that will store distances to be averaged/smoothed
 f_dist_frame = np.zeros((1,10))
@@ -51,14 +51,14 @@ print(f_dist_frame)
 print(b_dist_frame)
 
 # begin main while loop
-while count <= 400:
+while count <= 1000:
 
     # reset turn count to zero
     turn_count = 0
 
     mod_num = count % 10
 
-    # record distances from FRONT and BACK 
+    # record distances from FRONT and BACK
     f_dist = getDist(FRONT_TRIG, FRONT_ECHO)
     b_dist = getDist(BACK_TRIG, BACK_ECHO)
 
@@ -136,19 +136,19 @@ while count <= 400:
 
         # both are good, so simply drive forward
         if wall_check and align_check:
-            SetAndDriveRigt(.80, True)
+            SetAndDriveRight(.80, True)
             SetAndDriveLeft(.80, True)
             print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
         # Priority 1: fix distance to wall
-        elif (too_close and right) or (too_far and left):
+        elif (too_close and left) or (too_far and right):
             # commands similar to dynamic turn to the left
             SetAndDriveRight(.90, True)
             SetAndDriveLeft(.30, True)
             print('correcting to left')
 
-        elif (too_far and right) or (too_close and left):
+        elif (too_far and left) or (too_close and right):
             # commands similar to dynamic turn to the right
             SetAndDriveRight(.30, True)
             SetAndDriveLeft(.90, True)
@@ -171,7 +171,7 @@ while count <= 400:
                 time.sleep(0.025)
 
         elif (corner and left):
-            while turn_count < 10:                                                 
+            while turn_count < 10:
                 # commands similar to harder dynamic turn to the left
                 SetAndDriveLeft(.20, True)
                 SetAndDriveRight(1.0, True)
