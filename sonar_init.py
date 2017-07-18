@@ -23,12 +23,16 @@ def getDist(TRIG, ECHO):
 
     # calculate difference between pulse_start and pulse_end
     # to determine the duration of the pulse
-    pulse_duration = pulse_end - pulse_start
+    try:
+        pulse_duration = pulse_end - pulse_start
 
-    # do physics and get the distance in cm
-    distance = pulse_duration * 17150
+        # do physics and get the distance in cm
+        distance = pulse_duration * 17150
 
-    return distance
+        return distance
+
+    except:
+        pass
 
 ############### end functions
 
