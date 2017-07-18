@@ -53,6 +53,9 @@ print(b_dist_frame)
 # begin main while loop
 while count <= 1000:
 
+    # reset turn count to zero
+    turn_count = 0
+
     mod_num = count % 10
 
     # record distances from FRONT and BACK 
@@ -96,8 +99,16 @@ while count <= 1000:
                 too_far = False
                 too_close = True
 
-        # determine if the front and back are aligned
+        # determine distance between front and back sensors on wall side
         fb_align = f_dist_av - b_dist_av
+
+        # determine if the robot could possibly turn a corner by detecting a large
+        # measurement for fb_align
+        if fb_align >= 100:
+            corner = True
+
+        else:
+            corner = False
 
         if abs(fb_align) <= fb_skew:
             # the robot is aligned properly
@@ -143,8 +154,37 @@ while count <= 1000:
             SetAndDriveLeft(.90, True)
             print('correcting to right')
 
+        # Priority 2: turning a corner if one is detected
+        # LENGTH OF TURN SHOULD BE ADJUSTED:
+        # maybe the camera could be used to determine angle also.
+        elif (corner and right):
+            while turn_count < 10:
+                # commands similar to harder dynamic turn to the right
+                SetAndDriveRight(.20, True)
+                SetAndDriveLeft(1.0, True)
+                print('Turing Conrner: Right')
+
+                # append turn_count
+                turn_count += 1
+
+                # wait: same as drive loop for simplicity
+                time.sleep(0.025)
+
+        elif (corner and left):
+            while turn_count < 10:                                                 
+                # commands similar to harder dynamic turn to the left
+                SetAndDriveLeft(.20, True)
+                SetAndDriveRight(1.0, True)
+                print('Turing Conrner: Right')
+
+                # append turn_count
+                turn_count += 1
+
+                # wait: same as drive loop for simplicity
+                time.sleep(0.025)
+
         # making it to this point means distance is good, but alignment is not
-        # Priority 2: align the robot to drive straight
+        # Priority 3: align the robot to drive straight
         elif (align_back and right) or (align_front and left):
             # commands similar to static turn back and left
             SetAndDriveRight(.90, True)
