@@ -136,7 +136,7 @@ while count <= 1000:
 
         # both are good, so simply drive forward
         if wall_check and align_check:
-            SetAndDriveRigt(.80, True)
+            SetAndDriveRight(.80, True)
             SetAndDriveLeft(.80, True)
             print('driving straight')
 

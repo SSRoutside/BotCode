@@ -19,7 +19,7 @@ rb_log = []
 lb_log = []
 
 # begin main while loop
-while count <= 400
+while count <= 400:
 
     mod_num = count % 10
 
@@ -32,10 +32,10 @@ while count <= 400
     # make drive decisions every 10 loops
     if mod_num == 0:
         # save distances in last array spaces
-        rf_dist_frame[9] = rf_dist
-        rf_dist_frame[9] = rf_dist
-        rf_dist_frame[9] = rf_dist
-        rf_dist_frame[9] = rf_dist
+        rf_dist_frame[0:9] = rf_dist
+        lf_dist_frame[0:9] = lf_dist
+        rb_dist_frame[0:9] = rb_dist
+        lb_dist_frame[0:9] = lb_dist
 
         # use weighted average on each frame to determine average distance
         rf_dist_av = np.average(rf_dist_frame)
@@ -121,10 +121,10 @@ while count <= 400
     # otherwise, just update the distance frames
     else:
         # save distances into resepctive arrays 
-        rf_dist_frame[mod_num - 1] = rf_dist
-        lf_dist_frame[mod_num - 1] = lf_dist
-        rb_dist_frame[mod_num - 1] = rb_dist
-        lb_dist_frame[mod_num - 1] = lb_dist
+        rf_dist_frame[0:mod_num - 1] = rf_dist
+        lf_dist_frame[0:mod_num - 1] = lf_dist
+        rb_dist_frame[0:mod_num - 1] = rb_dist
+        lb_dist_frame[0:mod_num - 1] = lb_dist
 
     # append count
     count += 1

@@ -1,5 +1,6 @@
 import mraa
 import time
+import numpy as np
 
 # function to get a distance from the sensors
 def getDist(TRIG, ECHO):
@@ -46,7 +47,7 @@ RF_ECHO = mraa.Gpio(24)
 LF_TRIG = mraa.Gpio(31)
 LF_ECHO = mraa.Gpio(32)
 
-RB_TRIG = mraa.Gpio(37)
+RB_TRIG = mraa.Gpio(35)
 RB_ECHO = mraa.Gpio(38)
 
 LB_TRIG = mraa.Gpio(36)
