@@ -1,29 +1,52 @@
 # import current autonomous functions
 from auto_capabilities import *
 
-# get all variables needed to run WallFollow
-FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow
+    # what is this? does this need to be in the function or at the
+    # beginning of the main file or camera_init?
+with pyrs.Service() as a:
 
-# main driving loop
-while True:
+    dev = pyrs.Device()
 
-    # determine if cone is in field of view
-    cone_present = findCone()
+    #dev.apply_ivcam_preset(0)
+    #dev.set_device_option(11, 1)
+    #dev.set_device_option(10,1)
+    #dev.set_device_option(31,1)
 
-    if cone_present:
-        # enter motor commands that navigate in the direction of the cone.
-        # for now, this is straigt, but it should be determined by the angle
-        # to the centroid of the cone.
-        setAndDriveLeft(1.0, True)
-        setAndDriveRight(1.0, True)
+    cnt = 0
+    last = time.time()
+    smoothing = 0.9
+    fps_smooth = 30
 
-    #### should there be centering before wall following if two walls?
+    def nothing(x):
+        pass
 
-    elif oneWallCheck():
-        # run the wall following routine
-        WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew)
+#   # get all variables needed to run WallFollow
+#    FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow()
 
+    # main driving loop
+    loop = 0
+    while loop <= 1000:
 
-    else: 
-        # should maneuver randomly throughout "open" space
-        randomWalk()
+        cone_present = False
+        print("Restart Variable: " + str(cone_present))
+
+        # determine if cone is in field of view
+        cone_present = findCone(dev, cnt)
+
+        if cone_present == True:
+            # enter motor commands that navigate in the direction of the cone.
+            # for now, this is straigt, but it should be determined by the angle
+            # to the centroid of the cone.
+            print("This is my variable: " + str(cone_present))
+            SetAndDriveLeft(1.0, True)
+            SetAndDriveRight(1.0, True)
+
+        #### should there be centering before wall following if two walls?
+
+        else:
+            FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow()
+
+            WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew)
+
+        loop += 1
+        time.sleep(.25)

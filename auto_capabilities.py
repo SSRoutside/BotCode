@@ -5,7 +5,7 @@ import random, decimal
 
 ## camera init stuf: SHOULD BE INIT FILE SOON
 import cv2
-import pyreasense as pyrs
+import pyrealsense as pyrs
 import os
 import datetime
 import cone_detection
@@ -13,27 +13,8 @@ from matplotlib import pyplot as plt
 
 ########## start auto functions ############
 
-def findCone():
-
-    # what is this? does this need to be in the function or at the
-    # beginning of the main file or camera_init?
-    with pyrs.Service() as a:
-
-        dev = pyrs.Device()
-
-        #dev.apply_ivcam_preset(0)
-        #dev.set_device_option(11, 1)
-        #dev.set_device_option(10,1)
-        #dev.set_device_option(31,1)
-
-        cnt = 0
-        last = time.time()
-        smoothing = 0.9
-        fps_smooth = 30
-
-        def nothing(x):
-            pass
-
+def findCone(dev, cnt):
+        print("starting cone detection")
 
 
 #if you get a true value it updates counter, if it is false
@@ -59,23 +40,24 @@ def findCone():
 
         cv2.imshow('', rgb_im)
 
-    return cone_present 
+        return cone_present
 
 
 def SetWallFollow():
+    print("setting wall follow")
 # This function runs all of the commands needed before the wall following decisions can be
 # made in the main autonomous while loop. It will return all of the variables necessary to
-# run 
+# run
 
     # get distances from both front sensors
     ##### WHAT HAPPENS IF A WALLL ISN'T SEEN ON ONE OR BOTH SIDES?
     d_right = getDist(RF_TRIG, RF_ECHO)
     d_left = getDist(LF_TRIG, LF_ECHO)
 
-    # decide to follow the closest wall and begin using distances corresponding to 
+    # decide to follow the closest wall and begin using distances corresponding to
     # the closest wall
     if d_right >= d_left:
-    
+
     # set FRONT and BACK elements to correspond with the side facing the left wall
         FRONT_TRIG = LF_TRIG
         FRONT_ECHO = LF_ECHO
@@ -97,7 +79,7 @@ def SetWallFollow():
         right = True
         left = False
 
-    # initialize loop count 
+    # initialize loop count
     count = 1
     # initialize arrays that will store distances to be averaged/smoothed
     f_dist_frame = np.zeros((1,10))
@@ -115,6 +97,7 @@ def SetWallFollow():
     return FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew
 
 def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew):
+    print("executing wall follow")
 # This function is used in the main autonomous loop to make driving decisions using the
 # same method as wall_follow.py
 
