@@ -114,41 +114,83 @@ with pyrs.Service() as a:
         #    print(depth)  
 
 
-            e =  motor_init.getError(x)
-            print "error is %f" % (e)
-            if e > 0:
-                ### turn right ###
-           
-                motor_init.SetAndDriveLeft(.4, True, e)
-                motor_init.SetAndDriveRight(.4, False, e)
-            
+            ############################################################
+            ##
+            ##
+            ##  PID- PROPORTIONAL LOGIC 
+            ##  First, we get the error (which is found by subtracting the centerline from the center of mass
+            ##  that is returned by find_cone (the (x,y) coordinate). Next, we multiply the error by a k value
+            ##  that acts as a slope for how fast the robot can turn to the max value-- the slope for how quickly it turns to the max.
+            ##  After this, we check this product against the threshold for the max speed of the motor (255). If the product is greater
+            ##  than this threshold, we set this product to 255. Next, we check the sign of this product and either turn left if the
+            ##  product is negative or turn right if the product is positive. 
+            ##
+            ##  NOTE: The gain (the k-term) is set by the hardware so this will be different for each robot
+            ##  Start with k value of 1, test, then adjust from there
+            ## 
+            #######################################################################
 
-            elif e < 0:
+
+
+ 
+            correction_needed = motor_init.isCorrectionNeeded(x)
+            
+            if correction_needed = True:
+                e = motor_init.getError(x)
+                print "error is %f" % (e)
+
+                ########################
+                ##
+                ##  Thresholding
+                ##
+                ########################
+                # even though the error is a distance in the frame of view, it is still proportional to the speed
+                if e > 255:
+                    e = 255
+
+                if e < -255:
+                    e = -255
+
+                ############################################
+                ##
+                ##  Check Whether to Turn Right or Left
+                ##
+                ############################################
+                if e > 0:
+                ### turn right ###
+                ### this would make it turn on spot 
+                ### for how long? until the cone is directly on centerline?           
+                ### should we add a margin of acceptance, which says if the center of mass is within this window, its ok, so move forward?
+                    motor_init.SetAndDriveLeft(.4, True, e)
+                    motor_init.SetAndDriveRight(.4, False, e)
+            
+            # if e < 0
+                else:
                 ### turn left ###
-                motor_init.SetAndDriveLeft(.4, False, e)
-                motor_init.SetAndDriveRight(.4, True, e)
+                    motor_init.SetAndDriveLeft(.4, False, e)
+                    motor_init.SetAndDriveRight(.4, True, e)
 
             else:
 
-                ### go forward straight ###
-                motor_init.SetAndDriveLeft(.4, True, e)
-                motor_init.SetAndDriveRight(.4, True, e)
+                ### go straight forward ###
+                motor_init.SetAndDriveLeft(.4, True)
+                motor_init.SetAndDriveRight(.4, True)
 
 
 
         if cone_present == False:
             print 'spinning to locate cone'   
-            e =  motor_init.getError(x)
-            print "error is %f" % (e)
+          #  e =  motor_init.getError(x) #its not going to have an error if cone (or anything orange) isnt present
+          #  print "error is %f" % (e)
 
-            motor_init.SetAndDriveLeft(.4, True, e)
-            motor_init.SetAndDriveRight(.4, True, e)
+            motor_init.SetAndDriveLeft(.5, True)
+            motor_init.SetAndDriveRight(.3, True)
 
-        d = dev.depth #* dev.depth_scale * 1000
-        d_im = dev.depth*0.05
+      #  d = dev.depth #* dev.depth_scale * 1000
+      #  d_im = dev.depth*0.05
 
 
-        e = dev.dac
+        #e = dev.dac
 
   #      eh = np.size(e,0)
   #      ew = np.size(e,1)
