@@ -18,14 +18,32 @@ def getMotorValue(percent):
     return mv
 
 
+#########################
+####### Are we picking the center line of the depth stream, rgb stream, or transformed rgb-depth stream?
+##########################
+
+
+def isCorrectionNeeded(x):
+    needToCorrect = True
+    centerLineOfFrame = 320
+    coneCenterOfMass = x
+    error = coneCenterOfMass - centerLineOfFrame
+
+    # window of acceptable values
+    if error > 315 and error < 325:
+        need_to_correct = False
+        return needToCorrect
+    return needToCorrect 
+
 
 def getError(x):
     cl = 320 #centerline of depth stream
     k = 1.2 #proportionality constant
-    error = cl - x
-    correction = error * k
+    error = x - cl
+
+    correction = k * error
     correction = int(correction)
-        
+
     return correction
 
 # used to set speed and direction of Right Motor Pairs
