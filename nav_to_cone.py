@@ -1,4 +1,3 @@
-
 from __future__ import division
 import time
 import numpy as np
@@ -96,7 +95,7 @@ with pyrs.Service() as a:
 ##################################################
        # cv2.imshow('raw', c)
         dark = cv2.imread('black.jpg')
-        rgb_im, cone_present, x, y = cone_detection.find_cone(rgb_im, dark) #rgb
+        rgb_im, cone_present, x, y = cone_detection.find_cone(rgb_im)
         
 
         #resized = cv2.resize(rgb_im, None,fx= 640/1920,fy= 480/1080, interpolation=cv2.INTER_AREA)
@@ -110,6 +109,10 @@ with pyrs.Service() as a:
         if cone_present == True:
             print 'cone spotted, moving forward'    
             print(cone_present)
+
+            ### stopping distance using depth starts here ###
+
+            
         #    depth = [x, y]
         #    print(depth)  
 
@@ -145,36 +148,52 @@ with pyrs.Service() as a:
                 ##
                 ########################
                 # even though the error is a distance in the frame of view, it is still proportional to the speed
+                # sets a max value 
                 if e > 255:
                     e = 255
-
+               
+                # sets a min value
                 if e < -255:
                     e = -255
 
+                speed = 40 #initialize
+                # this is the range where it is fine to go straight forward
+                if e > -20 and e < 20:
+                    motor_init.SetAndDriveLeft(.4, True, speed)
+                    motor_init.SetAndDriveRight(.4, True, speed)
                 ############################################
                 ##
                 ##  Check Whether to Turn Right or Left
                 ##
                 ############################################
-                if e > 0:
+                # these are the values for it to turn right
+                if e >= 20:
                 ### turn right ###
                 ### this would make it turn on spot 
                 ### for how long? until the cone is directly on centerline?           
                 ### should we add a margin of acceptance, which says if the center of mass is within this window, its ok, so move forward?
                     motor_init.SetAndDriveLeft(.4, True, e)
                     motor_init.SetAndDriveRight(.4, False, e)
+               ### now go forward ###
+                    motor_init.SetAndDriveLeft(.4, True, speed)
+                    motor_init.SetAndDriveRight(.4, True, speed)
+
             
             # if e < 0
-                else:
+                if e <= -20:
                 ### turn left ###
                     motor_init.SetAndDriveLeft(.4, False, e)
                     motor_init.SetAndDriveRight(.4, True, e)
+                ### now go forward ###
+                    motor_init.SetAndDriveLeft(.4, True, speed)
+                    motor_init.SetAndDriveRight(.4, True, speed)
 
+                
             else:
 
                 ### go straight forward ###
-                motor_init.SetAndDriveLeft(.4, True)
-                motor_init.SetAndDriveRight(.4, True)
+                motor_init.SetAndDriveLeft(.4, True, 50)
+                motor_init.SetAndDriveRight(.4, True, 50)
 
 
 
@@ -182,9 +201,9 @@ with pyrs.Service() as a:
             print 'spinning to locate cone'   
           #  e =  motor_init.getError(x) #its not going to have an error if cone (or anything orange) isnt present
           #  print "error is %f" % (e)
-
-            motor_init.SetAndDriveLeft(.5, True)
-            motor_init.SetAndDriveRight(.3, True)
+            MV = 40
+            motor_init.SetAndDriveLeft(.5, True, MV)
+            motor_init.SetAndDriveRight(.3, False, MV)
 
       #  d = dev.depth #* dev.depth_scale * 1000
       #  d_im = dev.depth*0.05
@@ -198,19 +217,21 @@ with pyrs.Service() as a:
   #      print(eh)
   #      print(ew)
 
-  #      f = dev.cad
-  #      fh = np.size(e,0)
-  #      fw = np.size(e,1)
+        f = dev.cad
+        fh = np.size(f,0)
+        fw = np.size(f,1)
+        print fh, fw
+
   #      cv2.imshow('f', f)
   #      print(fh)
   #      print(fw)
 
 
 ##############3
-        d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
+       # d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
 ################        
-        d__im = cv2.circle(d_im_col, (x,y), 10, (255,255,255), 3)
-        cv2.imshow('', d__im)
+       # d__im = cv2.circle(d_im_col, (x,y), 10, (255,255,255), 3)
+       # cv2.imshow('', d__im)
         #res_dim = cv2.resize(d_im, None, fx=213,fy= 213, interpolation=cv2.INTER_AREA)
         #h = np.size(d_im,0)
         #w = np.size(d_im,1)
