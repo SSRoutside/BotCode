@@ -1,5 +1,6 @@
 from motor_init import *
 from sonar_init import *
+from Ptest import *
 import numpy as np
 import random, decimal
 
@@ -205,18 +206,9 @@ def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count,
             print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
-        # Priority 1: fix distance to wall
-        elif (too_close and right) or (too_far and left):
-            # commands similar to dynamic turn to the left
-            SetAndDriveRight(.90, True)
-            SetAndDriveLeft(.30, True)
-            print('correcting to left')
-
-        elif (too_far and right) or (too_close and left):
-            # commands similar to dynamic turn to the right
-            SetAndDriveRight(.30, True)
-            SetAndDriveLeft(.90, True)
-            print('correcting to right')
+        # Priority 1: fix distance to wall using proportional control
+        elif too_close or too_far:
+            wallPcontrol(f_dist_av, 20, left, right)
 
         # Priority 2: turning a corner if one is detected
         # LENGTH OF TURN SHOULD BE ADJUSTED:
