@@ -113,7 +113,7 @@ while count <= 400:
             print('correcting to left')
 
         elif not align_check:
-            # commands similar to static turn back and left
+            # commands similar to static turn left
             SetAndDriveRight(.90, True)
             SetAndDriveLeft(.10, True)
             print('pivoting left')
