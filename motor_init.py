@@ -52,7 +52,7 @@ def SetAndDriveRight(speed, forward, MV):
 
    # MV = getError(x)
 
-
+    MV = abs(MV)
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
 
@@ -70,7 +70,7 @@ def SetAndDriveLeft(speed, forward, MV):
 
    # MV = getError(x)
 
-
+    MV = abs(MV)
     myMotor2.setSpeed(MV)
     myMotor4.setSpeed(MV)
 
