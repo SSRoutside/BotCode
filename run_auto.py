@@ -27,11 +27,16 @@ with pyrs.Service() as a:
     loop = 0
     while loop <= 1000:
 
+        # initialize flags as False
+        oneWall = False
         cone_present = False
         print("Restart Variable: " + str(cone_present))
 
         # determine if cone is in field of view
         cone_present = findCone(dev, cnt)
+
+        # determine if wall exists
+        oneWall = oneWallCheck
 
         if cone_present == True:
             # enter motor commands that navigate in the direction of the cone.
@@ -43,10 +48,13 @@ with pyrs.Service() as a:
 
         #### should there be centering before wall following if two walls?
 
-        else:
+        elif oneWall == True:
             FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow()
 
             WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew)
+
+        else:
+            randomWalk()
 
         loop += 1
         time.sleep(.25)
