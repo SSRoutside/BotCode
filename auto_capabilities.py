@@ -2,11 +2,11 @@ from motor_init import *
 from sonar_init import *
 from Ptest import *
 import numpy as np
-import random, decimal
+import random
 
 ## camera init stuf: SHOULD BE INIT FILE SOON
 import cv2
-import pyreasense as pyrs
+import pyrealsense as pyrs
 import os
 import datetime
 import cone_detection
