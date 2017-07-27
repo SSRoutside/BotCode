@@ -1,15 +1,15 @@
-#from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
-#import atexit
+from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
+import atexit
 
 # From Adafruit MotorHat example code
 # create a default object, no changes to I2C address or frequency
-#mh = Adafruit_MotorHAT(addr=0x60)
+mh = Adafruit_MotorHAT(addr=0x60)
 
 # get each motor
-#myMotor1 = mh.getMotor(1) # right motor
-#myMotor2 = mh.getMotor(3) # left motor
-#myMotor3 = mh.getMotor(2) # right motor
-#myMotor4 = mh.getMotor(4) # left motor
+myMotor1 = mh.getMotor(1) # right motor
+myMotor2 = mh.getMotor(3) # left motor
+myMotor3 = mh.getMotor(2) # right motor
+myMotor4 = mh.getMotor(4) # left motor
 
 # get motor values between 0 and 255
 def getMotorValue(percent):
@@ -47,7 +47,7 @@ def getError(x):
     return correction
 
 # used to set speed and direction of Right Motor Pairs
-def SetAndDriveRight(speed, forward, MV):
+def SetAndDriveRight(speed=0, forward=True, MV=0):
 #    MV = getMotorValue(speed)
 
    # MV = getError(x)
@@ -65,7 +65,7 @@ def SetAndDriveRight(speed, forward, MV):
 
 
 # used to set speed and direction of Left Motor Pairs
-def SetAndDriveLeft(speed, forward, MV):
+def SetAndDriveLeft(speed=0, forward=True, MV=0):
  #   MV = getMotorValue(speed)
 
    # MV = getError(x)
@@ -88,4 +88,4 @@ def turnOffMotors():
         mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
 
-#atexit.register(turnOffMotors)
+atexit.register(turnOffMotors)
