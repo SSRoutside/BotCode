@@ -1,11 +1,6 @@
+from motor_init import *
 # This code will take sonar error measurements in cm and adjust the sterring and correction
 # proportionally due to that error.
-
-def calcControl(error, kp):
-    # basic proportional equation
-    control = int(kp * error)
-
-    return control
 
 def centeringPcontrol(left_dist, right_dist):
     # initialize constants
@@ -20,17 +15,20 @@ def centeringPcontrol(left_dist, right_dist):
     # positive value: turn to right (R : -, L : +)
     error = left_dist - right_dist
 
-    control = calcControl(error, kp)
+    control = int(kp * error)
 
-    if error < 0:
+    if error < -2:
         # left turn
         SetAndDriveLeft(forward=False, MV=control)
         SetAndDriveRight(forward=True, MV=control)
-    else:
+    elif error > 2:
         # right turn
         SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=False, MV=control) 
-
+        SetAndDriveRight(forward=False, MV=control)
+    else:
+        # drive straignt
+        SetAndDriveLeft(speed=.8, forward=True)
+        SetAndDriveRight(speed=.8, forward=True)
 
 
 
@@ -52,15 +50,21 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
     # postive error: correct towards wall
     error = wall_dist - ideal_dist
 
-    control = calcControl
+    control = int(kp * error)
 
-    if (left and (error < 0)) or (right and (error > 0)):
+    print(control)
+
+    if (left and (error < -2)) or (right and (error > 2)):
         # right turn
         SetAndDriveLeft(forward=True, MV=control)
         SetAndDriveRight(forward=False, MV=control)
 
-    else:
+    elif (right and (error < -2)) or (left and (error > 2)):
         # left turn
         SetAndDriveLeft(forward=False, MV=control)
         SetAndDriveRight(forward=True, MV=control)
 
+    else:
+        # drive straight
+        SetAndDriveLeft(speed=.8, forward=True)
+        SetAndDriveRight(speed=.8, forward=True)

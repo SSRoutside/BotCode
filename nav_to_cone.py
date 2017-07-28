@@ -6,7 +6,7 @@ import pyrealsense as pyrs
 import os
 import datetime
 import cv2
-import cone_detection
+import coneDetWithShape
 #to show the image
 
 from matplotlib import pyplot as plt
@@ -93,9 +93,7 @@ with pyrs.Service() as a:
 ##
 ##
 ##################################################
-       # cv2.imshow('raw', c)
-        dark = cv2.imread('black.jpg')
-        rgb_im, cone_present, x, y = cone_detection.find_cone(rgb_im)
+        rgb_im, cone_present, x, y = coneDetWithShape.find_cone(rgb_im)
         
 
         #resized = cv2.resize(rgb_im, None,fx= 640/1920,fy= 480/1080, interpolation=cv2.INTER_AREA)

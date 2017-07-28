@@ -2,11 +2,11 @@ from motor_init import *
 from sonar_init import *
 from Ptest import *
 import numpy as np
-import random, decimal
+import random
 
 ## camera init stuf: SHOULD BE INIT FILE SOON
 import cv2
-import pyreasense as pyrs
+import pyrealsense as pyrs
 import os
 import datetime
 import cone_detection
@@ -66,7 +66,7 @@ def findCone():
 def SetWallFollow():
 # This function runs all of the commands needed before the wall following decisions can be
 # made in the main autonomous while loop. It will return all of the variables necessary to
-# run 
+# run
 
     # get distances from both front sensors
     ##### WHAT HAPPENS IF A WALLL ISN'T SEEN ON ONE OR BOTH SIDES?
@@ -307,21 +307,14 @@ def twoWallCheck():
     return(rightWall and leftWall)
 
 def randomWalk():
-    # initialize variables to be used to determine a "random"
-    # direction and a random amount of time to drive a certain direction.
-    time_constant = 5 ## might need to change
-    turn_constant = 2 ## might need to change
     # will return 1 or 0
-    random_direction = random.randint(0, 1) 
-    # will return number between 0 and 1
-    time_decimal = decimal.Decimal(random.random())
-    turn_decimal = decimal.Decimal(random.random())
+    random_direction = random.randint(0, 1)
 
     # calculate time based on time_constant and random decimal (between 5 and 10 seconds)
-    t = time_constant + (time_constant * time_decimal)
+    driveTime = random.randint(15, 25)
 
     # calculate length of turn based on time_constant and random decimal (between 2 and 4 seconds)
-    turn = turn_constant + (turn_constant * turn_decimal)
+    turnTime = random.randint(2,8)
 
     if random_direction == 1:
         # turn to the right
@@ -330,7 +323,7 @@ def randomWalk():
         print('pivoting right')
 
         # continue in that direction for randomly determined time
-        time.sleep(turn)
+        time.sleep(turnTime)
 
     else:
         # turn to the left
@@ -339,7 +332,7 @@ def randomWalk():
         print('pivoting left')
 
         # continue in that direction for randomly determined time
-        time.sleep(turn)
+        time.sleep(turnTime)
 
     # drive forward for specified amount of time
     SetAndDriveRight(.80, True)
@@ -347,4 +340,4 @@ def randomWalk():
     print('driving straight')
 
     # continue in that direction for randomly determined time
-    time.sleep(t)
+    time.sleep(driveTime)

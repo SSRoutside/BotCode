@@ -204,6 +204,7 @@ while count <= 1000:
     # wait to loop, determined by maximum possible length of sonar signal
     time.sleep(0.025)
 
-
+turnOffMotors()
+time.sleep(2)
 print(front_log)
 print(back_log)
