@@ -24,6 +24,7 @@ def convexHullPassesAspectRatioTest(singleHull):
        # if convex hull is not taller than it is wide, return False
     
     if aspect_ratio < 0.8:
+        print 'passed the aspect ratio test'
         return singleHull, True
 
     else:
@@ -167,6 +168,7 @@ def convexHullIsPointingUp(hull, hull_counter):
 
 def find_contours(image):
 ########## COPY IMAGE ###############
+    cv2.imshow('img in find contours', image)
     clone = image.copy()
 
 ########### MAKE IMAGE BINARY ###########
@@ -179,8 +181,8 @@ def find_contours(image):
     # options for contour parameters: external and simple OR tree and none
     
     # sorts contours and gives the largest 10
-    contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
-    
+###    contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
+    print 'these are the contours', contours    
     # list of contours
     return contours
 
@@ -252,17 +254,17 @@ def find_contours(image):
 def find_cone(image):
     cone_spotted = False
 
-
+#    cv2.imshow('ORIGINAL', image)
 ############ PRE-PROCESSING #############
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
+ #   cv2.imshow('BGR2RGB', image)
     # we want to eliminate noise from our image. (Blurs an image using a Gaussian filter.)
     image_blur = cv2.GaussianBlur(image, (7, 7), 0)
-
+  #  cv2.imshow('blur', image_blur)
     # unlike RGB, HSV separates luma, or the image intensity, from chroma or the color information.
     # just want to focus on color, segmentation
     image_hsv = cv2.cvtColor(image_blur, cv2.COLOR_RGB2HSV)
-   
+   # cv2.imshow('HSV', image_hsv)
 
 ###########  THRESHOLDING #############
     # Filter by colour
@@ -287,7 +289,7 @@ def find_cone(image):
     # performs a logical OR       
     thresholded = (mask1 + mask2) - (mask1-mask2) - (mask2-mask1)
 
-
+   # cv2.imshow('thresholded', thresholded)
 
     #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
     #morph the image. closing operation Dilation followed by Erosion. 
@@ -307,33 +309,35 @@ def find_cone(image):
 ############### ERODE #####################
     kernel = np.ones((5,5), np.uint8)
     eroded_image = cv2.erode(thresholded_image, kernel, 1)
-
+    #cv2.imshow('eroded',eroded_image)
 
 ############## DILATE #####################
 
     img_dilation = cv2.dilate(eroded_image, kernel, iterations=1)
-  #  cv2.imshow("dilated", img_dilation)
-
+    #cv2.imshow('dilated',img_dilation)
 ########### GAUSSIAN BLUR ##################
 
     # Blurs an image using a Gaussian filter. input, kernel size, how much to filter, empty)
     image_blur = cv2.GaussianBlur(img_dilation, (7, 7), 0)
-
+#    cv2.imshow('another blur', image_blur)
 ########### CANNY EDGE #####################
     edge = cv2.Canny(image_blur, 4000, 4500, apertureSize=5)
+    cv2.imshow('edge',edge)
     cloned_edge = edge.copy()
-   
+ #   cv2.imshow('cloned edge', cloned_edge)
 ########## UPDATING BOOLEAN  ###############
     
     actual_cone = mask1.any() and mask2.any()
     if actual_cone == True:
         cone_spotted = True
-    
+#        print "AAAAAAAAAAAA"   
 ########### FIND CONTOURS #################
         # gets rid of noise in canny edge image
         # makes everything in the image a smooth shape
         # gets list of contours
         contours = find_contours(cloned_edge)
+       # print 'these are the contours', contours
+        copy_contours = contours
         cont_array = np.array(contours)
         
         # makes a binary image by converting to grayscale and then thresholding to B&W
@@ -355,6 +359,7 @@ def find_cone(image):
         blank = np.zeros([h,w,4],dtype=np.uint8)
        
         for i in list_contours:
+ #           print 'BBBBBBBBBBBBBBB'
 
         # get convex hull
             hull = cv2.convexHull(i)
@@ -372,11 +377,14 @@ def find_cone(image):
           #  aHull = cv2.drawContours(blank , [hull], -1, (0, 255,0), 2)
           #  cv2.imshow("HULL" , aHull)
             if (hull_counter > 3) and (hull_counter < 10):
+      #          print 'CCCCCCCCCCCCCCCCCCCC'
                 # if convex hull is pointing up... 
                 returnedHull, viableHullFound = convexHullPassesAspectRatioTest(hull)
                 if (viableHullFound):
+       #             print 'DDDDDDDDDDDDDDDDDDDDDDDD'
                    
                     if (convexHullIsPointingUp(returnedHull, hull_counter)):
+            #            print 'EEEEEEEEEEEEEEEEEEEEEEEe'
                         # if we get in here we have passed all the ifs, 
                         # therefore the convex hull is a cone, so add to list
                         list_cone_contour = list_cone_contours.append(hull)
@@ -396,7 +404,9 @@ def find_cone(image):
 
 ################ MOMENTS ###################
 # used to get center of mass
-        cnt = contours[0]
+        print copy_contours
+        cnt = copy_contours[0]
+        print cnt
         M = cv2.moments(cnt)
         print "GOT THE MOMENTS TOO"
         
@@ -407,9 +417,12 @@ def find_cone(image):
             print cy
             circle = cv2.circle(blank, (cx,cy), 2, (255,255,255), 3)
             print "showing ;sdknhg"
-            #cv2.imshow('center of mass', circle)
-            #cv2.waitKey(0)
-            return circle, cone_spotted, cx, cy
+            cv2.imshow('center of mass', circle)
+#            cv2.waitKey(0)
+   ###### this return should be inside the if statement ###########
+        #cx = 0
+        #cy = 0
+            return blank, cone_spotted, cx, cy
 
     # else, if actual_cone == false:
     cx = 0
@@ -418,11 +431,11 @@ def find_cone(image):
 
 #read the image
 #image = cv2.imread('TEST.jpg')
-image = cv2.imread('cone_4_2017-07-06_11:41:55__color.PNG')
+#image = cv2.imread('cone_4_2017-07-06_11:41:55__color.PNG')
 #image = cv2.imread('cone_5_2017-07-06_11:42:20__color.PNG')
 #image = cv2.imread('cone1.PNG')
 #detect it
-result = find_cone(image)
+#result = find_cone(image)
 
 ###############################
 # then, clone original image so we don't have to alter original image
@@ -439,4 +452,3 @@ result = find_cone(image)
 #write the new image0
 #cv2.imwrite('CONEINSIDE-FAR.PNG', result)
 
-cv2.destroyAllWindows()

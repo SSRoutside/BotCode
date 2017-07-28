@@ -16,11 +16,11 @@ import motor_init
 
 
 with pyrs.Service() as a:
- 
+    print 'hi' 
     dev = pyrs.Device()
 
     #dev.apply_ivcam_preset(0)
-#    dev.set_device_option(7, 1)
+    #dev.set_device_option(7, 1)
     #dev.set_device_option(10,1)
     #dev.set_device_option(31,1)
 
@@ -34,9 +34,9 @@ with pyrs.Service() as a:
 
 
    
-#if you get a true value it updates counter, if it is false
-# it resets and once it reaches a threshold
-# or look at every fifth frame
+    #if you get a true value it updates counter, if it is false
+    # it resets and once it reaches a threshold
+    # or look at every fifth frame
 
     while True:
 
@@ -50,11 +50,12 @@ with pyrs.Service() as a:
 
         dev.wait_for_frames()
 
-        c = dev.color # was color
+        c = dev.color 
+        # was color
 
 
       #  e = dev.dac
-        f = dev.cad
+  #      f = dev.cad
 
      #   eh = np.size(e,0)
      #   ew = np.size(e,1)
@@ -65,10 +66,10 @@ with pyrs.Service() as a:
 
 
 #        cv2.imshow('', cd)
-        c_col = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
-        rgb_im = cv2.cvtColor(f, cv2.COLOR_RGB2BGR)
-        cd = np.concatenate((c_col,rgb_im), axis=1)
-        cv2.imshow('this is our image', cd)
+   #     c_col = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
+        rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
+       # cd = np.concatenate((c_col,rgb_im), axis=1)
+       # cv2.imshow('this is our image', cd)
 
 
 
@@ -136,7 +137,7 @@ with pyrs.Service() as a:
  
             correction_needed = motor_init.isCorrectionNeeded(x)
             
-            if correction_needed = True:
+            if correction_needed == True:
                 e = motor_init.getError(x)
                 print "error is %f" % (e)
 
@@ -154,7 +155,7 @@ with pyrs.Service() as a:
                 if e < -255:
                     e = -255
 
-                speed = 40 #initialize
+                speed = 150 #initialize
                 # this is the range where it is fine to go straight forward
                 if e > -20 and e < 20:
                     motor_init.SetAndDriveLeft(.4, True, speed)
@@ -190,8 +191,8 @@ with pyrs.Service() as a:
             else:
 
                 ### go straight forward ###
-                motor_init.SetAndDriveLeft(.4, True, 50)
-                motor_init.SetAndDriveRight(.4, True, 50)
+                motor_init.SetAndDriveLeft(.4, True, 40)
+                motor_init.SetAndDriveRight(.4, True, 40)
 
 
 
@@ -247,7 +248,7 @@ with pyrs.Service() as a:
 
 #        cv2.imshow('', cd)
 #
-        cv2.imshow('IMAGE FROM CONE DETECTION', rgb_im)
+#        cv2.imshow('IMAGE FROM CONE DETECTION', rgb_im)
 #        cv2.imshow('', d_im_col)
    #     d = dev.dac
 #        cv2.imshow('', cd)
