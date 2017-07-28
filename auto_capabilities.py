@@ -60,7 +60,7 @@ def findCone():
 
         cv2.imshow('', rgb_im)
 
-    return cone_present 
+    return cone_present
 
 
 def SetWallFollow():
@@ -73,10 +73,10 @@ def SetWallFollow():
     d_right = getDist(RF_TRIG, RF_ECHO)
     d_left = getDist(LF_TRIG, LF_ECHO)
 
-    # decide to follow the closest wall and begin using distances corresponding to 
+    # decide to follow the closest wall and begin using distances corresponding to
     # the closest wall
     if d_right >= d_left:
-    
+
     # set FRONT and BACK elements to correspond with the side facing the left wall
         FRONT_TRIG = LF_TRIG
         FRONT_ECHO = LF_ECHO
@@ -98,7 +98,7 @@ def SetWallFollow():
         right = True
         left = False
 
-    # initialize loop count 
+    # initialize loop count
     count = 1
     # initialize arrays that will store distances to be averaged/smoothed
     f_dist_frame = np.zeros((1,10))
@@ -124,7 +124,7 @@ def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count,
 
     mod_num = count % 10
 
-    # record distances from FRONT and BACK 
+    # record distances from FRONT and BACK
     f_dist = getDist(FRONT_TRIG, FRONT_ECHO)
     b_dist = getDist(BACK_TRIG, BACK_ECHO)
 
@@ -316,6 +316,10 @@ def randomWalk():
     # calculate length of turn based on time_constant and random decimal (between 2 and 4 seconds)
     turnTime = random.randint(2,8)
 
+    # initialize loop counts
+    turnCount = 0
+    driveCount = 0
+
     if random_direction == 1:
         # turn to the right
         SetAndDriveRight(.10, True)
@@ -331,13 +335,43 @@ def randomWalk():
         SetAndDriveLeft(.10, True)
         print('pivoting left')
 
-        # continue in that direction for randomly determined time
-        time.sleep(turnTime)
+#    while turnCount < (turnTime/.25):
+
+        # check for cone and exit randomWalk if found
+#        if findCone() == True:
+ #           print("Cone detected.")
+  #          return
+
+        # check for wall and exit randomWalk if found
+#        if oneWallCheck() == True:
+ #           print("Wall detected.")
+  #          return
+
+#        turnCount += 1
+    time.sleep(turnTime)
 
     # drive forward for specified amount of time
     SetAndDriveRight(.80, True)
     SetAndDriveLeft(.80, True)
     print('driving straight')
 
-    # continue in that direction for randomly determined time
+#    while driveCount < (driveTime/.25):
+
+        # check for cone and exit randomWalk if found
+#        if findCone() == True:
+ #           print("Cone detected.")
+  #          return
+
+        # check for wall and exit randomWalk if found
+#        if oneWallCheck() == True:
+ #           print("Wall detected.")
+  #          return
+
+#        driveCount += 1
     time.sleep(driveTime)
+
+def motorTest():
+    SetAndDriveRight(forward=True, MV=200)
+    SetAndDriveLeft(forward=True, MV=200)
+    time.sleep(10)
+    turnOffMotors()
