@@ -19,12 +19,12 @@ def convexHullPassesAspectRatioTest(singleHull):
     x, y, w, h = cv2.boundingRect(singleHull)
 
     aspect_ratio = float(w)/h
-    print ("the aspect ratio is %f" % (aspect_ratio))
+#    print ("the aspect ratio is %f" % (aspect_ratio))
 
        # if convex hull is not taller than it is wide, return False
     
     if aspect_ratio < 0.8:
-        print 'passed the aspect ratio test'
+ #       print 'passed the aspect ratio test'
         return singleHull, True
 
     else:
@@ -149,7 +149,7 @@ def convexHullIsPointingUp(hull, hull_counter):
 
     # if we get here, shape has passed pointing up checks  
     # return True
-    print 'n    I T S  S S S  A  A  L L I I I V  V VE  E E E   '
+#    print 'n    I T S  S S S  A  A  L L I I I V  V VE  E E E   '
     return True
 
     
@@ -168,7 +168,7 @@ def convexHullIsPointingUp(hull, hull_counter):
 
 def find_contours(image):
 ########## COPY IMAGE ###############
-    cv2.imshow('img in find contours', image)
+#    cv2.imshow('img in find contours', image)
     clone = image.copy()
 
 ########### MAKE IMAGE BINARY ###########
@@ -182,7 +182,7 @@ def find_contours(image):
     
     # sorts contours and gives the largest 10
 ###    contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
-    print 'these are the contours', contours    
+ #   print 'these are the contours', contours    
     # list of contours
     return contours
 
@@ -322,24 +322,25 @@ def find_cone(image):
 #    cv2.imshow('another blur', image_blur)
 ########### CANNY EDGE #####################
     edge = cv2.Canny(image_blur, 4000, 4500, apertureSize=5)
-    cv2.imshow('edge',edge)
+#    cv2.imshow('edge',edge)
     cloned_edge = edge.copy()
  #   cv2.imshow('cloned edge', cloned_edge)
 ########## UPDATING BOOLEAN  ###############
     
     actual_cone = mask1.any() and mask2.any()
-    if actual_cone == True:
-        cone_spotted = True
 #        print "AAAAAAAAAAAA"   
 ########### FIND CONTOURS #################
         # gets rid of noise in canny edge image
         # makes everything in the image a smooth shape
         # gets list of contours
-        contours = find_contours(cloned_edge)
-       # print 'these are the contours', contours
-        copy_contours = contours
-        cont_array = np.array(contours)
-        
+    contours = find_contours(cloned_edge)
+#    print 'these are the contours', contours
+    copy_contours = contours
+    cont_array = np.array(contours)
+
+    if actual_cone == True:
+        cone_spotted = True
+        print 'GOT A CONE!!!!'
         # makes a binary image by converting to grayscale and then thresholding to B&W
         ###contour = cv2.cvtColor(contours, cv2.COLOR_BGR2GRAY)
         ###thresh, clone = cv2.threshold(contour, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -350,7 +351,7 @@ def find_cone(image):
             #peri = .8
             approx = cv2.approxPolyDP(c, 8, True)
             list_contours.append(approx)
-            print "got the approx"
+#            print "got the approx"
       
 ########## CONVEX HULL & DRAWING ##########
         thresh = thresholded.copy()
@@ -359,7 +360,7 @@ def find_cone(image):
         blank = np.zeros([h,w,4],dtype=np.uint8)
        
         for i in list_contours:
- #           print 'BBBBBBBBBBBBBBB'
+            print 'BBBBBBBBBBBBBBB'
 
         # get convex hull
             hull = cv2.convexHull(i)
@@ -370,21 +371,21 @@ def find_cone(image):
                hull_counter = hull_counter + 1
 
             # only draws convex hulls for polygons that have hulls between 3 and 10 AND that are pointing up
-            print ("hull counter is %d" % ( hull_counter))
+ #           print ("hull counter is %d" % ( hull_counter))
             list_cone_contours = []
 
             # check to see if it's between 3 and 10
           #  aHull = cv2.drawContours(blank , [hull], -1, (0, 255,0), 2)
           #  cv2.imshow("HULL" , aHull)
             if (hull_counter > 3) and (hull_counter < 10):
-      #          print 'CCCCCCCCCCCCCCCCCCCC'
+                print 'CCCCCCCCCCCCCCCCCCCC'
                 # if convex hull is pointing up... 
                 returnedHull, viableHullFound = convexHullPassesAspectRatioTest(hull)
                 if (viableHullFound):
-       #             print 'DDDDDDDDDDDDDDDDDDDDDDDD'
+                    print 'DDDDDDDDDDDDDDDDDDDDDDDD'
                    
                     if (convexHullIsPointingUp(returnedHull, hull_counter)):
-            #            print 'EEEEEEEEEEEEEEEEEEEEEEEe'
+                        print 'EEEEEEEEEEEEEEEEEEEEEEEe'
                         # if we get in here we have passed all the ifs, 
                         # therefore the convex hull is a cone, so add to list
                         list_cone_contour = list_cone_contours.append(hull)
@@ -395,6 +396,7 @@ def find_cone(image):
                         # return to top of For without adding to list of cones
 
                     else:
+                        print 'in here'
                         cx = 0
                         cy = 0
                         cone_spotted = False
@@ -404,20 +406,21 @@ def find_cone(image):
 
 ################ MOMENTS ###################
 # used to get center of mass
-        print copy_contours
+     #   print copy_contours
         cnt = copy_contours[0]
-        print cnt
+      #  print cnt
         M = cv2.moments(cnt)
+
         print "GOT THE MOMENTS TOO"
         
         if (M['m00'] != 0): 
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00']) 
-            print cx
-            print cy
+ #           print cx
+  #          print cy
             circle = cv2.circle(blank, (cx,cy), 2, (255,255,255), 3)
-            print "showing ;sdknhg"
-            cv2.imshow('center of mass', circle)
+   #         print "showing ;sdknhg"
+    #        cv2.imshow('center of mass', circle)
 #            cv2.waitKey(0)
    ###### this return should be inside the if statement ###########
         #cx = 0
@@ -425,6 +428,7 @@ def find_cone(image):
             return blank, cone_spotted, cx, cy
 
     # else, if actual_cone == false:
+    print 'no cone spotted'
     cx = 0
     cy = 0
     return edge, cone_spotted, cx, cy

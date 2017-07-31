@@ -13,7 +13,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import motor_init
 
-
+e_last = 0
+e = 0
 
 with pyrs.Service() as a:
     print 'hi' 
@@ -41,7 +42,7 @@ with pyrs.Service() as a:
     while True:
 
         cnt += 1
-        if (cnt % 10) == 0:
+        if (cnt % 1) == 0:
                 now = time.time()
                 dt = now - last
                 fps = 10/dt
@@ -134,32 +135,34 @@ with pyrs.Service() as a:
 
 
 
- 
-            correction_needed = motor_init.isCorrectionNeeded(x)
-            
-            if correction_needed == True:
-                e = motor_init.getError(x)
-                print "error is %f" % (e)
 
+            correction_needed = motor_init.isCorrectionNeeded(x)
+            e = motor_init.getError(x)
+
+            if correction_needed == True:
+                print "error is %f" % (e)
+                crt = motor_init.getCorrection(e, e_last, dt)
                 ########################
                 ##
                 ##  Thresholding
                 ##
                 ########################
                 # even though the error is a distance in the frame of view, it is still proportional to the speed
-                # sets a max value 
+                # sets a max value
                 if e > 255:
                     e = 255
-               
+
                 # sets a min value
                 if e < -255:
                     e = -255
 
+                mv = int(2 * e)
                 speed = 150 #initialize
                 # this is the range where it is fine to go straight forward
-                if e > -20 and e < 20:
-                    motor_init.SetAndDriveLeft(.4, True, speed)
-                    motor_init.SetAndDriveRight(.4, True, speed)
+#                if e > -20 and e < 20:
+ #                   motor_init.SetAndDriveLeft(.4, True, speed)
+  #                  motor_init.SetAndDriveRight(.4, True, speed)
+   #                 print 'error is negligible, going forward'
                 ############################################
                 ##
                 ##  Check Whether to Turn Right or Left
@@ -171,38 +174,47 @@ with pyrs.Service() as a:
                 ### this would make it turn on spot 
                 ### for how long? until the cone is directly on centerline?           
                 ### should we add a margin of acceptance, which says if the center of mass is within this window, its ok, so move forward?
-                    motor_init.SetAndDriveLeft(.4, True, e)
-                    motor_init.SetAndDriveRight(.4, False, e)
+                    motor_init.SetAndDriveLeft(.4, False, mv)
+                    motor_init.SetAndDriveRight(.4, True, mv)
+                    print 'correcting right ((((BUT ACTUALLY LEFT)))'
                ### now go forward ###
-                    motor_init.SetAndDriveLeft(.4, True, speed)
-                    motor_init.SetAndDriveRight(.4, True, speed)
+                   # motor_init.SetAndDriveLeft(.4, True, speed)
+                   # motor_init.SetAndDriveRight(.4, True, speed)
+                   # print 'now going forward'
 
-            
             # if e < 0
                 if e <= -20:
                 ### turn left ###
-                    motor_init.SetAndDriveLeft(.4, False, e)
-                    motor_init.SetAndDriveRight(.4, True, e)
+                    motor_init.SetAndDriveLeft(.4, True, mv)
+                    motor_init.SetAndDriveRight(.4, False, mv)
+                    print 'correcting left ((((BUT ACTUALLY RIGHT))))'
                 ### now go forward ###
-                    motor_init.SetAndDriveLeft(.4, True, speed)
-                    motor_init.SetAndDriveRight(.4, True, speed)
+                   # motor_init.SetAndDriveLeft(.4, True, speed)
+                   # motor_init.SetAndDriveRight(.4, True, speed)
+                   # print 'now going forward'
+                else:
+                    motor_init.SetAndDriveLeft(.4, True, 250)
+                    motor_init.SetAndDriveRight(.4, True, 250)
+                    print 'error is negligible, going forward'
 
-                
+
+
             else:
 
                 ### go straight forward ###
-                motor_init.SetAndDriveLeft(.4, True, 40)
-                motor_init.SetAndDriveRight(.4, True, 40)
+                motor_init.SetAndDriveLeft(.4, True, 150)
+                motor_init.SetAndDriveRight(.4, True, 150)
+                print 'CHARGING FORWARD!!!!!!' 
 
 
 
-        if cone_present == False:
+        else:
             print 'spinning to locate cone'   
           #  e =  motor_init.getError(x) #its not going to have an error if cone (or anything orange) isnt present
           #  print "error is %f" % (e)
-            MV = 40
-            motor_init.SetAndDriveLeft(.5, True, MV)
-            motor_init.SetAndDriveRight(.3, False, MV)
+            MV = 150
+            motor_init.SetAndDriveLeft(.5, False, MV)
+            motor_init.SetAndDriveRight(.3, True, MV)
 
       #  d = dev.depth #* dev.depth_scale * 1000
       #  d_im = dev.depth*0.05
@@ -219,16 +231,16 @@ with pyrs.Service() as a:
         f = dev.cad
         fh = np.size(f,0)
         fw = np.size(f,1)
-        print fh, fw
+        #print fh, fw
 
   #      cv2.imshow('f', f)
   #      print(fh)
   #      print(fw)
 
 
-##############3
+##############
        # d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
-################        
+################
        # d__im = cv2.circle(d_im_col, (x,y), 10, (255,255,255), 3)
        # cv2.imshow('', d__im)
         #res_dim = cv2.resize(d_im, None, fx=213,fy= 213, interpolation=cv2.INTER_AREA)
@@ -252,13 +264,14 @@ with pyrs.Service() as a:
 #        cv2.imshow('', d_im_col)
    #     d = dev.dac
 #        cv2.imshow('', cd)
+        e_last = e
         input = cv2.waitKey(1)
 
         if input == ord('q'):
-                break
+            break
 
         elif (input == -1):
-                continue
-    
-    print("heeeeeeeeeeeeeeeeeeeeyyyy")
+            continue
+        time.sleep(.25)
+    print("Good bye")
     motor_init.turnOffMotors()

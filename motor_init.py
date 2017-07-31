@@ -38,21 +38,25 @@ def isCorrectionNeeded(x):
 
 def getError(x):
     cl = 320 #centerline of depth stream
-    k = 1.2 #proportionality constant
-    error = x - cl
+    error = int(x - cl)
 
-    correction = k * error
-    correction = int(correction)
+    return error
 
-    return correction
+def getCorrection(error, previous_error, dt):
+    # set proportional constant
+    p = 0
+    # set derivative constant
+    d = 5
+    correction = (p*error) + d * ((error - previous_error) / dt)
 
 # used to set speed and direction of Right Motor Pairs
-def SetAndDriveRight(speed, forward, MV):
+def SetAndDriveRight(speed=0, forward=True, MV=0):
 #    MV = getMotorValue(speed)
 
    # MV = getError(x)
 
     MV = abs(MV)
+    print("SENDING MOTOR VALUE: " + str(MV))
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
 
@@ -65,7 +69,7 @@ def SetAndDriveRight(speed, forward, MV):
 
 
 # used to set speed and direction of Left Motor Pairs
-def SetAndDriveLeft(speed, forward, MV):
+def SetAndDriveLeft(speed=0, forward=True, MV=0):
  #   MV = getMotorValue(speed)
 
    # MV = getError(x)
