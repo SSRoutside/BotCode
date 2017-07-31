@@ -1,9 +1,15 @@
+# motorhat import
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
+# servohat import
+#from Adafruit_PWM_Servo_Driver import PWM
 #import atexit
 
 # From Adafruit MotorHat example code
 # create a default object, no changes to I2C address or frequency
 mh = Adafruit_MotorHAT(addr=0x60)
+
+# servo hat object
+#pwm = PWM(0x40)
 
 # get each motor: WORKS FOR LITTLE BLUE
 myMotor1 = mh.getMotor(1) # right motor

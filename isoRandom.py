@@ -1,6 +1,6 @@
 import motor_init as MI
 import random
-
+import time
 
 def randomWalk():
     # will return 1 or 0
@@ -65,3 +65,16 @@ def randomWalk():
 
 #        driveCount += 1
     time.sleep(driveTime)
+
+# Main control loop: set to run randomWalk function 5 times
+# initialize loop counter
+loop = 0
+
+while loop <= 5:
+    randomWalk()
+    # append loop count
+    loop += 1
+
+
+# make sure motors stop after falling out of the while loop
+MI.turnOffMotors()
