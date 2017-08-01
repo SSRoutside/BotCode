@@ -2,7 +2,7 @@
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 # servohat import
 #from Adafruit_PWM_Servo_Driver import PWM
-#import atexit
+import atexit
 
 # From Adafruit MotorHat example code
 # create a default object, no changes to I2C address or frequency
@@ -55,10 +55,11 @@ def getError(x):
 
 # used to set speed and direction of Right Motor Pairs
 def SetAndDriveRight(speed=0, forward=True, MV=0):
-#    MV = getMotorValue(speed)
+    MV = getMotorValue(speed)
 
    # MV = getError(x)
 
+    print ('MOTOR VALUE IS:  ' + str(MV))
     MV = abs(MV)
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
@@ -73,10 +74,11 @@ def SetAndDriveRight(speed=0, forward=True, MV=0):
 
 # used to set speed and direction of Left Motor Pairs
 def SetAndDriveLeft(speed=0, forward=True, MV=0):
- #   MV = getMotorValue(speed)
+    MV = getMotorValue(speed)
 
    # MV = getError(x)
 
+    print ('MOTOR VALUE IS:  ' + str(MV))
     MV = abs(MV)
     myMotor2.setSpeed(MV)
     myMotor4.setSpeed(MV)
@@ -95,4 +97,4 @@ def turnOffMotors():
         mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
 
-#atexit.register(turnOffMotors)
+atexit.register(turnOffMotors)

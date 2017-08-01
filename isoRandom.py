@@ -7,7 +7,7 @@ def randomWalk():
     random_direction = random.randint(0, 1)
 
     # calculate time based on time_constant and random decimal (between 5 and 10 seconds)
-    driveTime = random.randint(15, 25)
+    driveTime = random.randint(3, 6)
 
     # calculate length of turn based on time_constant and random decimal (between 2 and 4 seconds)
     turnTime = random.randint(2,8)
@@ -15,6 +15,8 @@ def randomWalk():
     # initialize loop counts
     turnCount = 0
     driveCount = 0
+
+    print random_direction
 
     if random_direction == 1:
         # turn to the right
@@ -70,7 +72,7 @@ def randomWalk():
 # initialize loop counter
 loop = 0
 
-while loop <= 5:
+while loop <= 3:
     randomWalk()
     # append loop count
     loop += 1
