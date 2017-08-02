@@ -144,6 +144,7 @@ while count <= 1000:
     ##### all checks below this point mean adjustments must be made
         # Priority 1: fix distance to wall using proportional control
         elif too_close or too_far:
+            print("correcting distance")
             wallPcontrol(f_dist_av, 20, left, right)
 
 

@@ -5,7 +5,7 @@ from motor_init import *
 def centeringPcontrol(left_dist, right_dist):
     # initialize constants
     # slope constant: should be played with based on behavior
-    kp = 10  # based on calculation
+    kp = 2  # based on calculation
 
     # derivative constant:
     ## should be added for better controll ## kd = something
@@ -16,19 +16,24 @@ def centeringPcontrol(left_dist, right_dist):
     error = left_dist - right_dist
 
     control = int(kp * error)
+    print("Control is: " + str(control))
+    print("Error is: " + str(error))
 
-    if error < -2:
+    if error > 2:
         # left turn
-        SetAndDriveLeft(forward=False, MV=control)
+        SetAndDriveLeft(forward=True, MV=(control/2))
         SetAndDriveRight(forward=True, MV=control)
-    elif error > 2:
+        print("CORRECT LEFT")
+    elif error < -2:
         # right turn
         SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=False, MV=control)
+        SetAndDriveRight(forward=True, MV=(control / 2))
+        print("CORRECT RIGHT")
     else:
         # drive straignt
         SetAndDriveLeft(speed=.8, forward=True)
         SetAndDriveRight(speed=.8, forward=True)
+        print("DRIVE STRAIGHT")
 
 
 
@@ -51,20 +56,33 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
     error = wall_dist - ideal_dist
 
     control = int(kp * error)
+    print("Control is: " + str(control))
+    print("Error is: " + str(error))
 
     print(control)
+
+    # if control value is over the maximum motor value,
+    # set it to the maximum motor value
+    if control > 255:
+        control = 255
+
+    # if control value is "under" the maximum motor value,
+    # set it to the negative maximum motor value
+    if control < -255:
+        control = -255
 
     if (left and (error < -2)) or (right and (error > 2)):
         # right turn
         SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=False, MV=control)
-
+        SetAndDriveRight(forward=True, MV=(control/2))
+        print("RIGHT TURN")
     elif (right and (error < -2)) or (left and (error > 2)):
         # left turn
-        SetAndDriveLeft(forward=False, MV=control)
+        SetAndDriveLeft(forward=True, MV=(control/2))
         SetAndDriveRight(forward=True, MV=control)
-
+        print("LEFT TURN")
     else:
         # drive straight
         SetAndDriveLeft(speed=.8, forward=True)
         SetAndDriveRight(speed=.8, forward=True)
+        print("DRIVING STRAIGHT")
