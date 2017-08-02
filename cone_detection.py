@@ -312,3 +312,4 @@ def find_cone(image):
 #write the new image0
 #cv2.imwrite('CONEINSIDE-FAR.jpg', result)
 
+
