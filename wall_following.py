@@ -165,7 +165,7 @@ while count <= 1000:
                 time.sleep(0.025)
 
         elif (corner and left):
-            while turn_count < 10:                                                 
+            while turn_count < 10:
                 # commands similar to harder dynamic turn to the left
                 SetAndDriveLeft(.20, True)
                 SetAndDriveRight(1.0, True)
@@ -181,14 +181,14 @@ while count <= 1000:
         # Priority 3: align the robot to drive straight
         elif (align_back and right) or (align_front and left):
             # commands similar to static turn back and left
-            SetAndDriveRight(.90, True)
-            SetAndDriveLeft(.10, True)
+            SetAndDriveRight(.10, True)
+            SetAndDriveLeft(.90, True)
             print('pivoting left')
 
         elif (align_front and right) or (align_back and left):
             # commands similar to static turn back and right
-            SetAndDriveRight(.10, True)
-            SetAndDriveLeft(.90, True)
+            SetAndDriveRight(.90, True)
+            SetAndDriveLeft(.10, True)
             print('pivoting right')
 
 ######## end motor command section

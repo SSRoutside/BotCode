@@ -19,15 +19,15 @@ def centeringPcontrol(left_dist, right_dist):
     print("Control is: " + str(control))
     print("Error is: " + str(error))
 
-    if error > 2:
+    if error < -5:
         # left turn
-        SetAndDriveLeft(forward=True, MV=(control/2))
-        SetAndDriveRight(forward=True, MV=control)
+        SetAndDriveLeft(forward=True, MV=(control/2)+90)
+        SetAndDriveRight(forward=True, MV=control+90)
         print("CORRECT LEFT")
-    elif error < -2:
+    elif error > 5:
         # right turn
-        SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=True, MV=(control / 2))
+        SetAndDriveLeft(forward=True, MV=control+90)
+        SetAndDriveRight(forward=True, MV=(control / 2)+90)
         print("CORRECT RIGHT")
     else:
         # drive straignt
@@ -45,8 +45,8 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
 
     # initialize constants
     # slope constant: should be played with based on behavior
-    kp = 10  # based on calculation
- 
+    kp = 2  # based on calculation
+
     # derivative constant:
     ## should be added for better controll ## kd = something
 
@@ -73,16 +73,14 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
 
     if (left and (error < -2)) or (right and (error > 2)):
         # right turn
-        SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=True, MV=(control/2))
+        SetAndDriveLeft(forward=True, MV=control+90)
+        SetAndDriveRight(forward=True, MV=(control/2)+90)
         print("RIGHT TURN")
     elif (right and (error < -2)) or (left and (error > 2)):
         # left turn
-        SetAndDriveLeft(forward=True, MV=(control/2))
-        SetAndDriveRight(forward=True, MV=control)
+        SetAndDriveLeft(forward=True, MV=(control/2)+90)
+        SetAndDriveRight(forward=True, MV=control+90)
         print("LEFT TURN")
     else:
-        # drive straight
-        SetAndDriveLeft(speed=.8, forward=True)
-        SetAndDriveRight(speed=.8, forward=True)
-        print("DRIVING STRAIGHT")
+        # drop out of function
+        return

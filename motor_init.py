@@ -55,7 +55,8 @@ def getError(x):
 
 # used to set speed and direction of Right Motor Pairs
 def SetAndDriveRight(speed=0, forward=True, MV=0):
-    #MV = getMotorValue(speed)
+    if not(speed == 0):
+        MV = getMotorValue(speed)
 
    # MV = getError(x)
 
@@ -74,7 +75,8 @@ def SetAndDriveRight(speed=0, forward=True, MV=0):
 
 # used to set speed and direction of Left Motor Pairs
 def SetAndDriveLeft(speed=0, forward=True, MV=0):
-    #MV = getMotorValue(speed)
+    if not(speed == 0):
+        MV = getMotorValue(speed)
 
    # MV = getError(x)
 
