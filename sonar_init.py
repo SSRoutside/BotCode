@@ -41,11 +41,11 @@ def getDist(TRIG, ECHO):
 
 ## CHANGE THESE PIN ADDRESSES AS NECESSARY
 
-RF_TRIG = mraa.Gpio(23)
-RF_ECHO = mraa.Gpio(24)
+RF_TRIG = mraa.Gpio(31)
+RF_ECHO = mraa.Gpio(32)
 
-LF_TRIG = mraa.Gpio(31)
-LF_ECHO = mraa.Gpio(32)
+LF_TRIG = mraa.Gpio(23)
+LF_ECHO = mraa.Gpio(24)
 
 RB_TRIG = mraa.Gpio(35)
 RB_ECHO = mraa.Gpio(38)
@@ -72,6 +72,7 @@ RF_TRIG.write(0)
 LF_TRIG.write(0)
 RB_TRIG.write(0)
 LB_TRIG.write(0)
+>>>>>>> master
 
 # wait for sensors to settle (ensures low setting)
 print("Waiting For Sensor To Settle")

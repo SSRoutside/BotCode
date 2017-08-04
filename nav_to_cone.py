@@ -6,11 +6,8 @@ import pyrealsense as pyrs
 import os
 import datetime
 import cv2
-<<<<<<< HEAD
-import cone_detection
-=======
 import coneDetWithShape
->>>>>>> driveTest
+
 #to show the image
 
 from matplotlib import pyplot as plt
@@ -22,16 +19,6 @@ import motor_init
 with pyrs.Service() as a:
  
     dev = pyrs.Device()
-
-    #dev.apply_ivcam_preset(0)
-<<<<<<< HEAD
-    #dev.set_device_option(11, 1)
-=======
-#    dev.set_device_option(7, 1)
->>>>>>> driveTest
-    #dev.set_device_option(10,1)
-    #dev.set_device_option(31,1)
-
     cnt = 0
     last = time.time()
     smoothing = 0.9
@@ -58,14 +45,9 @@ with pyrs.Service() as a:
 
         dev.wait_for_frames()
 
-<<<<<<< HEAD
         c = dev.color
         rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
 
-
-
-
-=======
         c = dev.color # was color
 
 
@@ -94,7 +76,6 @@ with pyrs.Service() as a:
         #depth aligned color
        # depth_and_color = dev.dac
        # d_and_c = 
->>>>>>> driveTest
 #####################################################
 ##
 ##
@@ -110,28 +91,7 @@ with pyrs.Service() as a:
 ##
 ##
 ##################################################
-<<<<<<< HEAD
-    #    cv2.imshow('raw', c)
-        rgb_im, cone_present = cone_detection.find_cone(rgb_im) #rgb
-        if cone_present == True:
-            print 'cone spotted, moving forward'    
-            print(cone_present)
-            
-            motor_init.SetAndDriveLeft(.4,True)
-            motor_init.SetAndDriveRight(.4,False)
 
-        if cone_present == False:
-            print 'spinning to locate cone'   
-
-            motor_init.SetAndDriveLeft(.4,False)
-            motor_init.SetAndDriveRight(.4,False)
-
-        d = dev.depth * dev.depth_scale * 1000
-        d_im = dev.depth*0.05
-
-        d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
-       
-=======
         rgb_im, cone_present, x, y = coneDetWithShape.find_cone(rgb_im)
         
 
@@ -276,7 +236,6 @@ with pyrs.Service() as a:
         #print h
         #print w
 
->>>>>>> driveTest
 #        print(cv2.size(rgb_im))
 #        print(cv2.size(d_im_col))
 
@@ -285,19 +244,12 @@ with pyrs.Service() as a:
 
 #        cv2.putText(cd, str(fps_smooth)[:4], (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0))
 
-<<<<<<< HEAD
- #       cv2.imshow('', cd)
-
-        cv2.imshow('', rgb_im)
-#        cv2.imshow('', d_im_col)
-=======
 #        cv2.imshow('', cd)
 #
         cv2.imshow('IMAGE FROM CONE DETECTION', rgb_im)
 #        cv2.imshow('', d_im_col)
    #     d = dev.dac
 #        cv2.imshow('', cd)
->>>>>>> driveTest
         input = cv2.waitKey(1)
 
         if input == ord('q'):

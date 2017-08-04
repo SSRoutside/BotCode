@@ -1,13 +1,8 @@
 from motor_init import *
 from sonar_init import *
-<<<<<<< HEAD
-import numpy as np
-import random, decimal
-=======
 from Ptest import *
 import numpy as np
 import random
->>>>>>> driveTest
 
 ## camera init stuf: SHOULD BE INIT FILE SOON
 import cv2
@@ -19,32 +14,8 @@ from matplotlib import pyplot as plt
 
 ########## start auto functions ############
 
-<<<<<<< HEAD
 def findCone(dev, cnt):
         print("starting cone detection")
-=======
-def findCone():
-
-    # what is this? does this need to be in the function or at the
-    # beginning of the main file or camera_init?
-    with pyrs.Service() as a:
-
-        dev = pyrs.Device()
-
-        #dev.apply_ivcam_preset(0)
-        #dev.set_device_option(11, 1)
-        #dev.set_device_option(10,1)
-        #dev.set_device_option(31,1)
-
-        cnt = 0
-        last = time.time()
-        smoothing = 0.9
-        fps_smooth = 30
-
-        def nothing(x):
-            pass
-
->>>>>>> driveTest
 
 
 #if you get a true value it updates counter, if it is false
@@ -70,18 +41,10 @@ def findCone():
 
         cv2.imshow('', rgb_im)
 
-<<<<<<< HEAD
         return cone_present
 
 
 def SetWallFollow():
-    print("setting wall follow")
-=======
-    return cone_present
-
-
-def SetWallFollow():
->>>>>>> driveTest
 # This function runs all of the commands needed before the wall following decisions can be
 # made in the main autonomous while loop. It will return all of the variables necessary to
 # run
@@ -134,10 +97,7 @@ def SetWallFollow():
     return FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew
 
 def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew):
-<<<<<<< HEAD
     print("executing wall follow")
-=======
->>>>>>> driveTest
 # This function is used in the main autonomous loop to make driving decisions using the
 # same method as wall_follow.py
 
@@ -146,11 +106,7 @@ def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count,
 
     mod_num = count % 10
 
-<<<<<<< HEAD
-    # record distances from FRONT and BACK 
-=======
     # record distances from FRONT and BACK
->>>>>>> driveTest
     f_dist = getDist(FRONT_TRIG, FRONT_ECHO)
     b_dist = getDist(BACK_TRIG, BACK_ECHO)
 
@@ -232,24 +188,10 @@ def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count,
             print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
-<<<<<<< HEAD
-        # Priority 1: fix distance to wall
-        elif (too_close and right) or (too_far and left):
-            # commands similar to dynamic turn to the left
-            SetAndDriveRight(.90, True)
-            SetAndDriveLeft(.30, True)
-            print('correcting to left')
 
-        elif (too_far and right) or (too_close and left):
-            # commands similar to dynamic turn to the right
-            SetAndDriveRight(.30, True)
-            SetAndDriveLeft(.90, True)
-            print('correcting to right')
-=======
         # Priority 1: fix distance to wall using proportional control
         elif too_close or too_far:
             wallPcontrol(f_dist_av, 20, left, right)
->>>>>>> driveTest
 
         # Priority 2: turning a corner if one is detected
         # LENGTH OF TURN SHOULD BE ADJUSTED:
@@ -348,23 +290,6 @@ def twoWallCheck():
     return(rightWall and leftWall)
 
 def randomWalk():
-<<<<<<< HEAD
-    # initialize variables to be used to determine a "random"
-    # direction and a random amount of time to drive a certain direction.
-    time_constant = 5 ## might need to change
-    turn_constant = 2 ## might need to change
-    # will return 1 or 0
-    random_direction = random.randint(0, 1) 
-    # will return number between 0 and 1
-    time_decimal = decimal.Decimal(random.random())
-    turn_decimal = decimal.Decimal(random.random())
-
-    # calculate time based on time_constant and random decimal (between 5 and 10 seconds)
-    t = time_constant + (time_constant * time_decimal)
-
-    # calculate length of turn based on time_constant and random decimal (between 2 and 4 seconds)
-    turn = turn_constant + (turn_constant * turn_decimal)
-=======
     # will return 1 or 0
     random_direction = random.randint(0, 1)
 
@@ -377,7 +302,6 @@ def randomWalk():
     # initialize loop counts
     turnCount = 0
     driveCount = 0
->>>>>>> driveTest
 
     if random_direction == 1:
         # turn to the right
@@ -386,11 +310,7 @@ def randomWalk():
         print('pivoting right')
 
         # continue in that direction for randomly determined time
-<<<<<<< HEAD
-        time.sleep(turn)
-=======
         time.sleep(turnTime)
->>>>>>> driveTest
 
     else:
         # turn to the left
@@ -398,10 +318,7 @@ def randomWalk():
         SetAndDriveLeft(.10, True)
         print('pivoting left')
 
-<<<<<<< HEAD
         # continue in that direction for randomly determined time
-        time.sleep(turn)
-=======
 #    while turnCount < (turnTime/.25):
 
         # check for cone and exit randomWalk if found
@@ -416,17 +333,12 @@ def randomWalk():
 
 #        turnCount += 1
     time.sleep(turnTime)
->>>>>>> driveTest
 
     # drive forward for specified amount of time
     SetAndDriveRight(.80, True)
     SetAndDriveLeft(.80, True)
     print('driving straight')
 
-<<<<<<< HEAD
-    # continue in that direction for randomly determined time
-    time.sleep(t)
-=======
 #    while driveCount < (driveTime/.25):
 
         # check for cone and exit randomWalk if found
@@ -447,4 +359,3 @@ def motorTest():
     SetAndDriveLeft(forward=True, MV=200)
     time.sleep(10)
     turnOffMotors()
->>>>>>> driveTest
