@@ -1,6 +1,7 @@
 # imports to run sonar and drive motors
 from motor_init import *
 from sonar_init import *
+from Ptest import *
 
 # initialize loop count
 count = 1
@@ -92,7 +93,7 @@ while count <= 400:
 
         if centered and align_check:
             # both are good, so drive straight
-            SetAndDriveRigt(.80, True)
+            SetAndDriveRight(.80, True)
             SetAndDriveLeft(.80, True)
             print('driving straight')
 
@@ -106,7 +107,7 @@ while count <= 400:
             SetAndDriveRight(.90, True)
             SetAndDriveLeft(.10, True)
             print('pivoting left')
- 
+
     # otherwise, just update the distance frames
     else:
         # save distances into resepctive arrays 
@@ -129,3 +130,4 @@ print ("RB LOG:")
 print(rb_log)
 print("LB LOG:")
 print(lb_log)
+

@@ -19,12 +19,6 @@ e = 0
 with pyrs.Service() as a:
     print 'hi' 
     dev = pyrs.Device()
-
-    #dev.apply_ivcam_preset(0)
-    #dev.set_device_option(7, 1)
-    #dev.set_device_option(10,1)
-    #dev.set_device_option(31,1)
-
     cnt = 0
     last = time.time()
     smoothing = 0.9
@@ -53,7 +47,6 @@ with pyrs.Service() as a:
 
         c = dev.color 
         # was color
-
 
       #  e = dev.dac
   #      f = dev.cad
@@ -95,6 +88,7 @@ with pyrs.Service() as a:
 ##
 ##
 ##################################################
+
         rgb_im, cone_present, x, y = coneDetWithShape.find_cone(rgb_im)
         
 

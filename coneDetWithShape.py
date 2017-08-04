@@ -19,12 +19,15 @@ def convexHullPassesAspectRatioTest(singleHull):
     x, y, w, h = cv2.boundingRect(singleHull)
 
     aspect_ratio = float(w)/h
+
 #    print ("the aspect ratio is %f" % (aspect_ratio))
+
 
        # if convex hull is not taller than it is wide, return False
     
     if aspect_ratio < 0.8:
  #       print 'passed the aspect ratio test'
+
         return singleHull, True
 
     else:
@@ -149,7 +152,9 @@ def convexHullIsPointingUp(hull, hull_counter):
 
     # if we get here, shape has passed pointing up checks  
     # return True
-#    print 'n    I T S  S S S  A  A  L L I I I V  V VE  E E E   '
+
+    print 'n    I T S  S S S  A  A  L L I I I V  V VE  E E E   '
+
     return True
 
     
@@ -168,7 +173,9 @@ def convexHullIsPointingUp(hull, hull_counter):
 
 def find_contours(image):
 ########## COPY IMAGE ###############
+
 #    cv2.imshow('img in find contours', image)
+
     clone = image.copy()
 
 ########### MAKE IMAGE BINARY ###########
@@ -181,8 +188,10 @@ def find_contours(image):
     # options for contour parameters: external and simple OR tree and none
     
     # sorts contours and gives the largest 10
+
 ###    contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
  #   print 'these are the contours', contours    
+
     # list of contours
     return contours
 
@@ -291,6 +300,7 @@ def find_cone(image):
 
    # cv2.imshow('thresholded', thresholded)
 
+
     #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
     #morph the image. closing operation Dilation followed by Erosion. 
     #It is useful in closing small holes inside the foreground objects, 
@@ -309,12 +319,16 @@ def find_cone(image):
 ############### ERODE #####################
     kernel = np.ones((5,5), np.uint8)
     eroded_image = cv2.erode(thresholded_image, kernel, 1)
+
     #cv2.imshow('eroded',eroded_image)
+
 
 ############## DILATE #####################
 
     img_dilation = cv2.dilate(eroded_image, kernel, iterations=1)
+
     #cv2.imshow('dilated',img_dilation)
+  
 ########### GAUSSIAN BLUR ##################
 
     # Blurs an image using a Gaussian filter. input, kernel size, how much to filter, empty)
@@ -329,10 +343,12 @@ def find_cone(image):
     
     actual_cone = mask1.any() and mask2.any()
 #        print "AAAAAAAAAAAA"   
+
 ########### FIND CONTOURS #################
         # gets rid of noise in canny edge image
         # makes everything in the image a smooth shape
         # gets list of contours
+
     contours = find_contours(cloned_edge)
 #    print 'these are the contours', contours
     copy_contours = contours
@@ -341,6 +357,7 @@ def find_cone(image):
     if actual_cone == True:
         cone_spotted = True
         print 'GOT A CONE!!!!'
+
         # makes a binary image by converting to grayscale and then thresholding to B&W
         ###contour = cv2.cvtColor(contours, cv2.COLOR_BGR2GRAY)
         ###thresh, clone = cv2.threshold(contour, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -351,7 +368,9 @@ def find_cone(image):
             #peri = .8
             approx = cv2.approxPolyDP(c, 8, True)
             list_contours.append(approx)
+
 #            print "got the approx"
+
       
 ########## CONVEX HULL & DRAWING ##########
         thresh = thresholded.copy()
@@ -360,7 +379,7 @@ def find_cone(image):
         blank = np.zeros([h,w,4],dtype=np.uint8)
        
         for i in list_contours:
-            print 'BBBBBBBBBBBBBBB'
+
 
         # get convex hull
             hull = cv2.convexHull(i)
@@ -372,20 +391,19 @@ def find_cone(image):
 
             # only draws convex hulls for polygons that have hulls between 3 and 10 AND that are pointing up
  #           print ("hull counter is %d" % ( hull_counter))
+
             list_cone_contours = []
 
             # check to see if it's between 3 and 10
           #  aHull = cv2.drawContours(blank , [hull], -1, (0, 255,0), 2)
           #  cv2.imshow("HULL" , aHull)
             if (hull_counter > 3) and (hull_counter < 10):
-                print 'CCCCCCCCCCCCCCCCCCCC'
+
                 # if convex hull is pointing up... 
                 returnedHull, viableHullFound = convexHullPassesAspectRatioTest(hull)
                 if (viableHullFound):
-                    print 'DDDDDDDDDDDDDDDDDDDDDDDD'
                    
                     if (convexHullIsPointingUp(returnedHull, hull_counter)):
-                        print 'EEEEEEEEEEEEEEEEEEEEEEEe'
                         # if we get in here we have passed all the ifs, 
                         # therefore the convex hull is a cone, so add to list
                         list_cone_contour = list_cone_contours.append(hull)
@@ -396,7 +414,6 @@ def find_cone(image):
                         # return to top of For without adding to list of cones
 
                     else:
-                        print 'in here'
                         cx = 0
                         cy = 0
                         cone_spotted = False
@@ -429,6 +446,7 @@ def find_cone(image):
 
     # else, if actual_cone == false:
     print 'no cone spotted'
+
     cx = 0
     cy = 0
     return edge, cone_spotted, cx, cy
@@ -440,6 +458,7 @@ def find_cone(image):
 #image = cv2.imread('cone1.PNG')
 #detect it
 #result = find_cone(image)
+
 
 ###############################
 # then, clone original image so we don't have to alter original image
@@ -455,4 +474,3 @@ def find_cone(image):
 #find_biggest_contour(image)
 #write the new image0
 #cv2.imwrite('CONEINSIDE-FAR.PNG', result)
-
