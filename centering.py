@@ -1,6 +1,10 @@
 # imports to run sonar and drive motors
 from motor_init import *
 from sonar_init import *
+<<<<<<< HEAD
+=======
+from Ptest import *
+>>>>>>> driveTest
 
 # initialize loop count
 count = 1
@@ -92,12 +96,17 @@ while count <= 400:
 
         if centered and align_check:
             # both are good, so drive straight
+<<<<<<< HEAD
             SetAndDriveRigt(.80, True)
+=======
+            SetAndDriveRight(.80, True)
+>>>>>>> driveTest
             SetAndDriveLeft(.80, True)
             print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
         # Priority 1: fix distance to wall
+<<<<<<< HEAD
         elif left:
             # too far left, drive right to get to center
             # commands similar to dynamic turn to the right
@@ -118,6 +127,17 @@ while count <= 400:
             SetAndDriveLeft(.10, True)
             print('pivoting left')
  
+=======
+        elif left or right:
+            centeringPcontrol(left_av, right_av)
+
+        elif not align_check:
+            # commands similar to static turn back and left
+            SetAndDriveRight(.90, True)
+            SetAndDriveLeft(.10, True)
+            print('pivoting left')
+
+>>>>>>> driveTest
     # otherwise, just update the distance frames
     else:
         # save distances into resepctive arrays 
@@ -140,4 +160,7 @@ print ("RB LOG:")
 print(rb_log)
 print("LB LOG:")
 print(lb_log)
+<<<<<<< HEAD
 
+=======
+>>>>>>> driveTest
