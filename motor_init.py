@@ -1,17 +1,12 @@
-# motorhat import
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
-# servohat import
-#from Adafruit_PWM_Servo_Driver import PWM
-#import atexit
+import atexit
 
 # From Adafruit MotorHat example code
 # create a default object, no changes to I2C address or frequency
 mh = Adafruit_MotorHAT(addr=0x60)
 
-# servo hat object
-#pwm = PWM(0x40)
-
 # get each motor: WORKS FOR LITTLE BLUE
+# get each motor
 myMotor1 = mh.getMotor(1) # right motor
 myMotor2 = mh.getMotor(3) # left motor
 myMotor3 = mh.getMotor(2) # right motor
@@ -53,13 +48,19 @@ def getError(x):
 
     return correction
 
+# get motor values between 0 and 255
+def getMotorValue(percent):
+        mv = percent * 255
+        mv = int(mv)
+        return mv
+
 # used to set speed and direction of Right Motor Pairs
 def SetAndDriveRight(speed=0, forward=True, MV=0):
-#    MV = getMotorValue(speed)
+    if not(speed == 0):
+        MV = getMotorValue(speed)
 
-   # MV = getError(x)
+    MV = abs(MV)   
 
-    MV = abs(MV)
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
 
@@ -73,11 +74,11 @@ def SetAndDriveRight(speed=0, forward=True, MV=0):
 
 # used to set speed and direction of Left Motor Pairs
 def SetAndDriveLeft(speed=0, forward=True, MV=0):
- #   MV = getMotorValue(speed)
-
-   # MV = getError(x)
+    if not(speed == 0):
+        MV = getMotorValue(speed)
 
     MV = abs(MV)
+
     myMotor2.setSpeed(MV)
     myMotor4.setSpeed(MV)
 
@@ -88,11 +89,11 @@ def SetAndDriveLeft(speed=0, forward=True, MV=0):
         myMotor2.run(Adafruit_MotorHAT.BACKWARD)
         myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
-# auto disable motors on shutdown
+# fuction used to disable motors on shutdown
 def turnOffMotors():
         mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
         mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
 
-#atexit.register(turnOffMotors)
+atexit.register(turnOffMotors)

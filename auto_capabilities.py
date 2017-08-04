@@ -14,27 +14,9 @@ from matplotlib import pyplot as plt
 
 ########## start auto functions ############
 
-def findCone():
-
-    # what is this? does this need to be in the function or at the
-    # beginning of the main file or camera_init?
-    with pyrs.Service() as a:
-
-        dev = pyrs.Device()
-
-        #dev.apply_ivcam_preset(0)
-        #dev.set_device_option(11, 1)
-        #dev.set_device_option(10,1)
-        #dev.set_device_option(31,1)
-
-        cnt = 0
-        last = time.time()
-        smoothing = 0.9
-        fps_smooth = 30
-
-        def nothing(x):
-            pass
-
+def findCone(dev, cnt):
+        print("starting cone detection")
+>>>>>>> master
 
 
 #if you get a true value it updates counter, if it is false
@@ -60,10 +42,11 @@ def findCone():
 
         cv2.imshow('', rgb_im)
 
-    return cone_present
+        return cone_present
 
 
 def SetWallFollow():
+    print("setting wall follow")
 # This function runs all of the commands needed before the wall following decisions can be
 # made in the main autonomous while loop. It will return all of the variables necessary to
 # run
@@ -116,6 +99,7 @@ def SetWallFollow():
     return FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew
 
 def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew):
+    print("executing wall follow")
 # This function is used in the main autonomous loop to make driving decisions using the
 # same method as wall_follow.py
 
@@ -206,6 +190,7 @@ def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count,
             print('driving straight')
 
     ##### all checks below this point mean adjustments must be made
+
         # Priority 1: fix distance to wall using proportional control
         elif too_close or too_far:
             wallPcontrol(f_dist_av, 20, left, right)

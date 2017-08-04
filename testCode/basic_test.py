@@ -3,12 +3,15 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+
+
 import time
 import numpy as np
 import cv2
 import pyrealsense as pyrs
 import os
 import datetime
+from PIL import Image
 
 check = True
 global final_directory
@@ -72,8 +75,12 @@ with pyrs.Service() as a:
 	dev = pyrs.Device()
 	#with pyrs.Service() as a, pyrs.Device() as dev:
 
-	dev.apply_ivcam_preset(0)
+        
 
+	dev.apply_ivcam_preset(0)
+        dev.set_device_option(31, 0)
+        dev.set_device_option(29, 1)
+        dev.set_device_option(30,3)
 	cnt = 0
 	last = time.time()
 	smoothing = 0.9
@@ -94,12 +101,25 @@ with pyrs.Service() as a:
 		c = dev.color
 		rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
 
-		d = dev.depth * dev.depth_scale * 1000
+                # raw depth data
+		d_raw = dev.depth
+                # depth data scaled to read milimeters
+		d_mm = dev.depth * dev.depth_scale * 1000
+                # data that is scaled to be seen nicely in the depth
+                # depth picture as shown on the monitor
 		d_im = dev.depth*0.05
 
 		d_im_col = cv2.applyColorMap(d_im.astype(np.uint8), cv2.COLORMAP_HSV)
 
-		cd = np.concatenate((c,d_im_col), axis=1)
+               # i_im = dev.infrared
+               # np.resize(i_im, (480, 640))
+               # im_size = print(i_im.size)
+
+
+                # putting all three images : rgb, depth, and infrared together
+                #cd1 = np.concatenate((c,d_im_col), axis=1)
+		cd = np.concatenate((d_im_col,c), axis=1)
+
 
 		cv2.putText(cd, str(fps_smooth)[:4], (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0))
 
@@ -127,9 +147,25 @@ with pyrs.Service() as a:
 			# OpenCV has one method in its library, but for faster image saving we could look into something like PIL.
 			file_name= series_name + '_' + str(counter)
          #keeps count of the photo taken in this particular series
-			cv2.imwrite(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ '_depth.PNG', d_im_col);
-			cv2.imwrite(file_name +'_'+ str(datetime.date.today()) +'_'+ time.strftime("%H:%M:%S") +'_'+ '_color.PNG', rgb_im);
-			# to-do: how do we save images to a specific folder? How can we let the user choose this folder on start up?
+			cv2.imwrite(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ '_depth.PNG', d_im_col)
+			cv2.imwrite(file_name +'_'+ str(datetime.date.today()) +'_'+ time.strftime("%H:%M:%S") +'_'+ '_color.PNG', rgb_im)
+
+                        # open files to write binary
+                        raw_out = open(file_name+'_'+str(datetime.date.today())+'_'+time.strftime("%H:%M:%S")+'_'+'RawOut','wb')
+                        mm_out = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'MMOut', 'wb')
+                        image_out = open(file_name +'_'+ str(datetime.date.today())+'_'+ time.strftime("%H:%M:%S")+'_'+ 'ImageOut', 'wb')
+
+                        # write variables to the opened files (for raw data, for milimeter data, for image data as in the variables above)
+                        raw_out.write(d_raw)
+                        mm_out.write(d_mm)
+                        image_out.write(d_im)
+
+                        # close files
+                        raw_out.close()
+                        mm_out.close()
+                        image_out.close()
+
+                        # to-do: how do we save images to a specific folder? How can we let the user choose this folder on start up?
 			# the above imwrite commands have the format of series_count_date_time.png
 
 			# Jesus: I think we can add a raw_input line at the beginning of the code asking the user for a folder. We would also need to make sure that the inputed folder name actually exists. If in$

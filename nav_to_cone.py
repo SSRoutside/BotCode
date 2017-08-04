@@ -7,6 +7,7 @@ import os
 import datetime
 import cv2
 import coneDetWithShape
+
 #to show the image
 
 from matplotlib import pyplot as plt
@@ -18,12 +19,6 @@ import motor_init
 with pyrs.Service() as a:
  
     dev = pyrs.Device()
-
-    #dev.apply_ivcam_preset(0)
-#    dev.set_device_option(7, 1)
-    #dev.set_device_option(10,1)
-    #dev.set_device_option(31,1)
-
     cnt = 0
     last = time.time()
     smoothing = 0.9
@@ -78,6 +73,7 @@ with pyrs.Service() as a:
         #depth aligned color
        # depth_and_color = dev.dac
        # d_and_c = 
+
 #####################################################
 ##
 ##
@@ -93,6 +89,7 @@ with pyrs.Service() as a:
 ##
 ##
 ##################################################
+
         rgb_im, cone_present, x, y = coneDetWithShape.find_cone(rgb_im)
         
 
@@ -251,6 +248,7 @@ with pyrs.Service() as a:
 #        cv2.imshow('', d_im_col)
    #     d = dev.dac
 #        cv2.imshow('', cd)
+
         input = cv2.waitKey(1)
 
         if input == ord('q'):

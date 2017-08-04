@@ -20,40 +20,27 @@ with pyrs.Service() as a:
     def nothing(x):
         pass
 
-#   # get all variables needed to run WallFollow
-#    FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow()
+    # initialize loop counter
+    loop = 0
 
     # main driving loop
-    loop = 0
     while loop <= 1000:
 
         # initialize flags as False
         oneWall = False
-        cone_present = False
-        print("Restart Variable: " + str(cone_present))
-
-        # determine if cone is in field of view
-        cone_present = findCone(dev, cnt)
 
         # determine if wall exists
-        oneWall = oneWallCheck
+        oneWall = oneWallCheck()
 
-        if cone_present == True:
-            # enter motor commands that navigate in the direction of the cone.
-            # for now, this is straigt, but it should be determined by the angle
-            # to the centroid of the cone.
-            print("This is my variable: " + str(cone_present))
-            SetAndDriveLeft(1.0, True)
-            SetAndDriveRight(1.0, True)
-
-        #### should there be centering before wall following if two walls?
-
-        elif oneWall == True:
+        if oneWall == True:
+            # gather all necessary information and components for wall following
             FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew = SetWallFollow()
 
+            # run wall following decision loop
             WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew)
 
         else:
+            # run randomWalk when there is no other information available
             randomWalk()
 
         loop += 1

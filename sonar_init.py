@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+import mraa
 import time
 import numpy as np
 
@@ -37,26 +37,42 @@ def getDist(TRIG, ECHO):
 
 ############### end functions
 
-# select a numbering system for pin addressing
-# BCM: numbers after GPIO on labeling pictures
-# BOARD: physical numbers of pins (CHOSEN CURRENTLY, CAN BE CHANGED)
-GPIO.setmode(GPIO.BOARD)
+# pin numbers for TRIG and ECHO (corresponding to physical locations on UP Board (BCM-like))
 
 ## CHANGE THESE PIN ADDRESSES AS NECESSARY
 
-# address trigger pins and set them to output with an initial state of low
-# the echo pins must also be addressed and set as input
-RF_TRIG = GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
-RF_ECHO = GPIO.setup(11, GPIO.IN)
+RF_TRIG = mraa.Gpio(31)
+RF_ECHO = mraa.Gpio(32)
 
-LF_TRIG = GPIO.setup(15, GPIO.OUT, initial=GPIO.LOW)
-LF_ECHO = GPIO.setup(16, GPIO.IN)
+LF_TRIG = mraa.Gpio(23)
+LF_ECHO = mraa.Gpio(24)
 
-RB_TRIG = GPIO.setup(12, GPIO.OUT, initial=GPIO.LOW)
-RB_ECHO = GPIO.setup(13, GPIO.IN)
+RB_TRIG = mraa.Gpio(35)
+RB_ECHO = mraa.Gpio(38)
 
-LB_TRIG = GPIO.setup(18, GPIO.OUT, initial=GPIO.LOW)
-LB_ECHO = GPIO.setup(22, GPIO.IN)
+LB_TRIG = mraa.Gpio(36)
+LB_ECHO = mraa.Gpio(40)
+
+# set trigger pins as output and echo pins as input
+RF_TRIG.dir(mraa.DIR_OUT)
+RF_ECHO.dir(mraa.DIR_IN)
+
+LF_TRIG.dir(mraa.DIR_OUT)
+LF_ECHO.dir(mraa.DIR_IN)
+
+RB_TRIG.dir(mraa.DIR_OUT)
+RB_ECHO.dir(mraa.DIR_IN)
+
+LB_TRIG.dir(mraa.DIR_OUT)
+LB_ECHO.dir(mraa.DIR_IN)
+
+
+# set trigger pins low
+RF_TRIG.write(0)
+LF_TRIG.write(0)
+RB_TRIG.write(0)
+LB_TRIG.write(0)
+>>>>>>> master
 
 # wait for sensors to settle (ensures low setting)
 print("Waiting For Sensor To Settle")
