@@ -1,11 +1,10 @@
-from motor_init import *
 # This code will take sonar error measurements in cm and adjust the sterring and correction
 # proportionally due to that error.
 
 def centeringPcontrol(left_dist, right_dist):
     # initialize constants
     # slope constant: should be played with based on behavior
-    kp = 10  # based on calculation
+    kp = 2  # based on calculation
 
     # derivative constant:
     ## should be added for better controll ## kd = something
@@ -16,19 +15,44 @@ def centeringPcontrol(left_dist, right_dist):
     error = left_dist - right_dist
 
     control = int(kp * error)
+    print("Control is: " + str(control))
+    print("Error is: " + str(error)
 
-    if error < -2:
+    # if control value is over the maximum motor value,
+    # set it to the maximum motor value
+    if control > 255:
+        control = 255
+
+    # if control value is "under" the maximum motor value,
+    # set it to the negative maximum motor value
+    if control < -255:
+        control = -255
+
+    if error < -5:
         # left turn
-        SetAndDriveLeft(forward=False, MV=control)
-        SetAndDriveRight(forward=True, MV=control)
-    elif error > 2:
+        leftMV = (control / 2) + 90
+        leftF = True
+        rightMV = control + 90
+        rightF = True
+
+        print("CORRECTING LEFT")
+
+        return leftMV, leftF, rightMV, rightF
+
+    elif error > 5:
         # right turn
-        SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=False, MV=control)
+        leftMV = control + 90 
+        leftF = True
+        rightMV = (control / 2) + 90 
+        rightF = True
+
+        print("CORRECTING RIGHT")
+
+        return leftMV, leftF, rightMV, rightF
+
     else:
-        # drive straignt
-        SetAndDriveLeft(speed=.8, forward=True)
-        SetAndDriveRight(speed=.8, forward=True)
+        # drop out of Pcontrol
+        return
 
 
 
@@ -40,7 +64,7 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
 
     # initialize constants
     # slope constant: should be played with based on behavior
-    kp = 10  # based on calculation
+    kp = 2  # based on calculation
  
     # derivative constant:
     ## should be added for better controll ## kd = something
@@ -51,20 +75,40 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
     error = wall_dist - ideal_dist
 
     control = int(kp * error)
+    print("Control is: " + str(control))
+    print("Error is: " + str(error)
 
-    print(control)
+    # if control value is over the maximum motor value,
+    # set it to the maximum motor value
+    if control > 255:
+        control = 255
+
+    # if control value is "under" the maximum motor value,
+    # set it to the negative maximum motor value
+    if control < -255:
+        control = -255
 
     if (left and (error < -2)) or (right and (error > 2)):
         # right turn
-        SetAndDriveLeft(forward=True, MV=control)
-        SetAndDriveRight(forward=False, MV=control)
+        leftMV = control + 90
+        leftF = True
+        rightMV = (control / 2) + 90
+
+        print("CORRECTING RIGHT")
+
+        return leftMV, leftF, rightMV, rightF
 
     elif (right and (error < -2)) or (left and (error > 2)):
         # left turn
-        SetAndDriveLeft(forward=False, MV=control)
-        SetAndDriveRight(forward=True, MV=control)
+        leftMV = (control / 2) + 90
+        leftF = True
+        rightMV = control + 90
+        rightF = True
+
+        print("CORRECTING LEFT")
+
+        return leftMV, leftF, rightMV, rightF
 
     else:
-        # drive straight
-        SetAndDriveLeft(speed=.8, forward=True)
-        SetAndDriveRight(speed=.8, forward=True)
+        # drop out of proportional control
+        return
