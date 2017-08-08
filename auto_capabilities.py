@@ -1,6 +1,6 @@
-from motor_init import *
-from sonar_init import *
-from Ptest import *
+import motor_init as MI
+import sonar_init as SI
+import Ptest
 import numpy as np
 import random
 
@@ -43,16 +43,36 @@ def findCone(dev, cnt):
 
         return cone_present
 
+def makeWFArray(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, f_dist_frame, b_dist_frame):
+# makes and returns arrays of disances to be used in WallFollow function
 
-def SetWallFollow():
+    # sample 10 distances, and average them
+    for i in range(0, 10):
+        # record distances from FRONT and BACK
+        f_dist = SI.getDist(FRONT_TRIG, FRONT_ECHO)
+        b_dist = SI.getDist(BACK_TRIG, BACK_ECHO)
+
+        # save distances into resepctive arrays 
+        f_dist_frame[0:i] = f_dist
+        b_dist_frame[0:i] = b_dist
+
+        time.sleep(.025)
+
+    # determine average distance by averaging the elements in each frame
+    f_dist_av = np.average(f_dist_frame)
+    b_dist_av = np.average(b_dist_frame)
+
+    return f_dist_av, b_dist_av
+
+def wallFollow():
 # This function runs all of the commands needed before the wall following decisions can be
 # made in the main autonomous while loop. It will return all of the variables necessary to
 # run
 
     # get distances from both front sensors
     ##### WHAT HAPPENS IF A WALLL ISN'T SEEN ON ONE OR BOTH SIDES?
-    d_right = getDist(RF_TRIG, RF_ECHO)
-    d_left = getDist(LF_TRIG, LF_ECHO)
+    d_right = SI.getDist(RF_TRIG, RF_ECHO)
+    d_left = SI.getDist(LF_TRIG, LF_ECHO)
 
     # decide to follow the closest wall and begin using distances corresponding to
     # the closest wall
@@ -79,176 +99,156 @@ def SetWallFollow():
         right = True
         left = False
 
-    # initialize loop count
-    count = 1
     # initialize arrays that will store distances to be averaged/smoothed
     f_dist_frame = np.zeros((1,10))
     b_dist_frame = np.zeros((1,10))
     # initilize acceptable error ranges for front/back distances
     # and distance to wall
-    min_wall_skew = 15
-    max_wall_skew = 25
+    min_wall_skew = 35
+    max_wall_skew = 45
     fb_skew = 5 # SHOULD PROBABLY BE NARROWED
     # initialize log lists for recording all distance measurements
 ##    #front_log = []
 ##    #back_log = []
 
-    # we may not need all of these variables
-    return FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew
+    # set loop and sleep values for motor commands to 0
+    loop = 0
+    sleep = 0
 
-def WallFollow(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, right, left, count, f_dist_frame, b_dist_frame, min_wall_skew, max_wall_skew, fb_skew):
-    print("executing wall follow")
-# This function is used in the main autonomous loop to make driving decisions using the
-# same method as wall_follow.py
+    # call function to obtain front and back distance averages
+    f_dist_av, b_dist_av = makeWFArray(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, f_dist_frame, b_dist_frame)
 
-    # reset turn count to zero
-    turn_count = 0
+    # append log lists
+    front_log.append(f_dist_av)
+    back_log.append(b_dist_av)
 
-    mod_num = count % 10
+    # check distance averages to see if they're reasonable
+    print("FRONT DISTANCE: " + str(f_dist_av))
+    print("BACK DISTANCE: " + str(b_dist_av))
+ 
+    # determine if the robot is close enough to the wall
+    if (f_dist_av >= min_wall_skew) and (f_dist_av <= max_wall_skew):
+        wall_check = True
+        too_far = False
+        too_close = False
 
-    # record distances from FRONT and BACK
-    f_dist = getDist(FRONT_TRIG, FRONT_ECHO)
-    b_dist = getDist(BACK_TRIG, BACK_ECHO)
+    else:
+        wall_check = False
 
-    # make drive decisions every 10 loops
-    if mod_num == 0:
-        # save distances in the last space in the array
-        f_dist_frame[0:9] = f_dist
-        b_dist_frame[0:9] = b_dist
-
-        # use weighted average on each frame to determine average distance
-        f_dist_av = np.average(f_dist_frame)
-        b_dist_av = np.average(b_dist_frame)
-
-        # append log lists
-        front_log.append(f_dist_av)
-        back_log.append(b_dist_av)
-
-        # check distance averages to see if they're reasonable
-        print(f_dist_av)
-        print(b_dist_av)
-
-        # determine if the robot is close enough to the wall
-        if (f_dist_av >= min_wall_skew) and (f_dist_av <= max_wall_skew):
-            wall_check = True
-            too_far = False
+        # determine if the robot is too close or too far from the wall
+        # boolean variables will be set to determine future motion
+        if f_dist_av > max_wall_skew: # means further from wall, must move closer
+            too_far = True
             too_close = False
 
-        else:
-            wall_check = False
+        else: # means too close to wall, must move away
+            too_far = False
+            too_close = True
 
-            # determine if the robot is too close or too far from the wall
-            # boolean variables will be set to determine future motion
-            if f_dist_av > max_wall_skew: # means further from wall, must move closer
-                too_far = True
-                too_close = False
+    # determine distance between front and back sensors on wall side
+    fb_align = f_dist_av - b_dist_av
 
-            else: # means too close to wall, must move away
-                too_far = False
-                too_close = True
+    # determine if the robot could possibly turn a corner by detecting a large
+    # measurement for fb_align
+    if fb_align >= 100:
+        corner = True
 
-        # determine distance between front and back sensors on wall side
-        fb_align = f_dist_av - b_dist_av
+    else:
+        corner = False
 
-        # determine if the robot could possibly turn a corner by detecting a large
-        # measurement for fb_align
-        if fb_align >= 100:
-            corner = True
+    if abs(fb_align) <= fb_skew:
+        # the robot is aligned properly
+        align_check = True
+        align_back = False
+        align_front = False
 
-        else:
-            corner = False
+    else:
+        align_check = False
 
-        if abs(fb_align) <= fb_skew:
-            # the robot is aligned properly
-            align_check = True
-            align_back = False
+        # determine which side is misaligned due to the sign of fb_align
+        # used in deciding to adjust towards the outer side
+        if align_check > 0: # means front is further from wall
+            #means back should be aligned
+            align_back = True
             align_front = False
 
-        else:
-            align_check = False
-
-            # determine which side is misaligned due to the sign of fb_align
-            # used in deciding to adjust towards the outer side
-            if align_check > 0: # means front is further from wall
-                #means back should be aligned
-                align_back = True
-                align_front = False
-
-            else: # means back is further from wall
-                # means front should be aligned
-                align_back = False
-                align_front = True
+        else: # means back is further from wall
+            # means front should be aligned
+            align_back = False
+            align_front = True
 
 ######## decisions translated to motor commands
 
-        # both are good, so simply drive forward
-        if wall_check and align_check:
-            SetAndDriveRight(.80, True)
-            SetAndDriveLeft(.80, True)
-            print('driving straight')
+    # both are good, so simply drive forward
+    if wall_check and align_check:
+        rightMV = 204
+        rightF = True
+        leftMV = 204
+        rightF = True
 
-    ##### all checks below this point mean adjustments must be made
+        print('driving straight')
 
-        # Priority 1: fix distance to wall using proportional control
-        elif too_close or too_far:
-            wallPcontrol(f_dist_av, 20, left, right)
+##### all checks below this point mean adjustments must be made
 
-        # Priority 2: turning a corner if one is detected
-        # LENGTH OF TURN SHOULD BE ADJUSTED:
-        # maybe the camera could be used to determine angle also.
-        elif (corner and right):
-            while turn_count < 10:
-                # commands similar to harder dynamic turn to the right
-                SetAndDriveRight(.20, True)
-                SetAndDriveLeft(1.0, True)
-                print('Turing Conrner: Right')
+    # Priority 1: fix distance to wall using proportional control
+    elif too_close or too_far:
+        # get arguments for motor commands from proportional control function
+        leftMV, leftF, rightMV, rightF = Ptest.wallPcontrol(f_dist_av, 20, left, right)
 
-                # append turn_count
-                turn_count += 1
+    # Priority 2: turning a corner if one is detected
+    # LENGTH OF TURN SHOULD BE ADJUSTED:
+    # MOTOR VALUES MAY NEED TO BE ADJUSTED (esp weak side)
+    # maybe the camera could be used to determine angle also.
+    elif (corner and right):
+        # commands similar to harder dynamic turn to the right
+        rightMV = 90
+        rightF = True
+        leftMV = 255
+        leftF = True
+        print('Turning Corner: Right')
 
-                # wait: same as drive loop for simplicity
-                time.sleep(0.025)
+        # set loop and sleep args to loop turn command 10 times
+        # loop number may need to change!
+        # sleep same as main loop sleep
+        loop = 10
+        sleep = .25
+        print('Turning Corner: Left')
 
-        elif (corner and left):
-            while turn_count < 10:
-                # commands similar to harder dynamic turn to the left
-                SetAndDriveLeft(.20, True)
-                SetAndDriveRight(1.0, True)
-                print('Turing Conrner: Right')
+    elif (corner and left):
+        # commands similar to harder dynamic turn to the left
+        rightMV = 255
+        rightF = True
+        leftMV = 90
+        leftF = True
 
-                # append turn_count
-                turn_count += 1
+        # set loop and sleep args to loop turn command 10 times
+        # loop number may need to change!
+        # sleep same as main loop sleep
+        loop = 10
+        print('Turning Corner: Left')
 
-                # wait: same as drive loop for simplicity
-                time.sleep(0.025)
+    # making it to this point means distance is good, but alignment is not
+    # Priority 3: align the robot to drive straight
+    elif (align_back and right) or (align_front and left):
+        # commands similar to static turn left
+        rightMV = 230
+        rightF = True
+        leftMV = 25
+        leftF = True
+        print('pivoting left')
 
-        # making it to this point means distance is good, but alignment is not
-        # Priority 3: align the robot to drive straight
-        elif (align_back and right) or (align_front and left):
-            # commands similar to static turn left
-            SetAndDriveRight(.90, True)
-            SetAndDriveLeft(.10, True)
-            print('pivoting left')
+    elif (align_front and right) or (align_back and left):
+        # commands similar to static turn right
+        rightMV = 25
+        rightF = True
+        leftMV = 230
+        leftF = True
+        print('pivoting right')
 
-        elif (align_front and right) or (align_back and left):
-            # commands similar to static turn right
-            SetAndDriveRight(.10, True)
-            SetAndDriveLeft(.90, True)
-            print('pivoting right')
+    # return motor values and directions... designed to update about every .25 seconds
+    return rightMV, rightF, leftMV, leftF, loop
 
 ######## end motor command section
-
-    # ohterwise, just update the distance frames
-    else:
-        # save distances into resepctive arrays 
-        f_dist_frame[0:mod_num - 1] = f_dist
-        b_dist_frame[0:mod_num - 1] = b_dist
-
-    # append count
-    count += 1
-
-    # wait to loop, determined by maximum possible length of sonar signal
-    time.sleep(0.025)
 
 def findWall(TRIG, ECHO):
 
@@ -293,30 +293,36 @@ def randomWalk():
     # will return 1 or 0
     random_direction = random.randint(0, 1)
 
-    # calculate time based on time_constant and random decimal (between 5 and 10 seconds)
+    # determine random time to drive forward (between 15 and 25 seconds)
     driveTime = random.randint(15, 25)
 
-    # calculate length of turn based on time_constant and random decimal (between 2 and 4 seconds)
+    # determine random time to execute length of turn
+. (between 2 and 8 seconds)
     turnTime = random.randint(2,8)
 
-    # initialize loop counts
-    turnCount = 0
-    driveCount = 0
+    # initialize sleep to one second
+    sleep = 1
 
     if random_direction == 1:
         # turn to the right
-        SetAndDriveRight(.10, True)
-        SetAndDriveLeft(.90, True)
+        rightMV = 25
+        rightF = True
+        leftMV = 230
+        leftF = True
         print('pivoting right')
 
-        # continue in that direction for randomly determined time
-        time.sleep(turnTime)
+        return rightMV, rightF, leftMV, leftF, driveTime, turnTIme, sleep 
 
     else:
         # turn to the left
-        SetAndDriveRight(.90, True)
-        SetAndDriveLeft(.10, True)
+        rightMV = 230
+        rightF = True
+        leftMV = 25
+        leftF = True
         print('pivoting left')
+
+        return rightMV, rightF, leftMV, leftF, driveTime, turnTIme, sleep
+
 
         # continue in that direction for randomly determined time
 #    while turnCount < (turnTime/.25):
@@ -332,12 +338,6 @@ def randomWalk():
   #          return
 
 #        turnCount += 1
-    time.sleep(turnTime)
-
-    # drive forward for specified amount of time
-    SetAndDriveRight(.80, True)
-    SetAndDriveLeft(.80, True)
-    print('driving straight')
 
 #    while driveCount < (driveTime/.25):
 
@@ -352,9 +352,9 @@ def randomWalk():
   #          return
 
 #        driveCount += 1
-    time.sleep(driveTime)
 
 def motorTest():
+# simply drives motors straight forward for 10 seconds
     SetAndDriveRight(forward=True, MV=200)
     SetAndDriveLeft(forward=True, MV=200)
     time.sleep(10)

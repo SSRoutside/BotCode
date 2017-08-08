@@ -1,4 +1,5 @@
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
+import time
 import atexit
 
 # From Adafruit MotorHat example code
@@ -52,14 +53,8 @@ def getCorrection(error, previous_error, dt):
     d = 5
     correction = (p*error) + d * ((error - previous_error) / dt)
 
-# get motor values between 0 and 255
-def getMotorValue(percent):
-        mv = percent * 255
-        mv = int(mv)
-        return mv
-
 # used to set speed and direction of Right Motor Pairs
-def SetAndDriveRight(speed=0, forward=True, MV=0)
+def SetAndDriveRight(forward=True, MV=0, speed=0, loop=0, sleep=0)
     if not(speed == 0):
         MV = getMotorValue(speed)
 
@@ -69,12 +64,18 @@ def SetAndDriveRight(speed=0, forward=True, MV=0)
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
 
-    if forward:
-        myMotor1.run(Adafruit_MotorHAT.FORWARD)
-        myMotor3.run(Adafruit_MotorHAT.FORWARD)
-    else:
-        myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+    count = 0
+
+    while count <= loop:
+        if forward:
+            myMotor1.run(Adafruit_MotorHAT.FORWARD)
+            myMotor3.run(Adafruit_MotorHAT.FORWARD)
+        else:
+            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
+
+        count += 1
+        time.sleep(sleep)
 
 
 # used to set speed and direction of Left Motor Pairs
@@ -87,12 +88,19 @@ def SetAndDriveLeft(speed=0, forward=True, MV=0)
     myMotor2.setSpeed(MV)
     myMotor4.setSpeed(MV)
 
-    if forward:
-        myMotor2.run(Adafruit_MotorHAT.FORWARD)
-        myMotor4.run(Adafruit_MotorHAT.FORWARD)
-    else:
-        myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+    count = 0
+
+    while count <= loop:
+
+        if forward:
+            myMotor2.run(Adafruit_MotorHAT.FORWARD)
+            myMotor4.run(Adafruit_MotorHAT.FORWARD)
+        else:
+            myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
+
+        count += 1
+        time.sleep(sleep)
 
 # fuction used to disable motors on shutdown
 def turnOffMotors():
