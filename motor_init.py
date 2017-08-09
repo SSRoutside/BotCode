@@ -54,7 +54,7 @@ def getCorrection(error, previous_error, dt):
     correction = (p*error) + d * ((error - previous_error) / dt)
 
 # used to set speed and direction of Right Motor Pairs
-def SetAndDriveRight(forward=True, MV=0, speed=0, loop=0, sleep=0)
+def SetAndDriveRight(forward=True, MV=0, speed=0)
     if not(speed == 0):
         MV = getMotorValue(speed)
 
@@ -64,18 +64,12 @@ def SetAndDriveRight(forward=True, MV=0, speed=0, loop=0, sleep=0)
     myMotor1.setSpeed(MV)
     myMotor3.setSpeed(MV)
 
-    count = 0
-
-    while count <= loop:
-        if forward:
-            myMotor1.run(Adafruit_MotorHAT.FORWARD)
-            myMotor3.run(Adafruit_MotorHAT.FORWARD)
-        else:
-            myMotor1.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor3.run(Adafruit_MotorHAT.BACKWARD)
-
-        count += 1
-        time.sleep(sleep)
+    if forward:
+        myMotor1.run(Adafruit_MotorHAT.FORWARD)
+        myMotor3.run(Adafruit_MotorHAT.FORWARD)
+    else:
+        myMotor1.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor3.run(Adafruit_MotorHAT.BACKWARD)
 
 
 # used to set speed and direction of Left Motor Pairs
@@ -88,19 +82,19 @@ def SetAndDriveLeft(speed=0, forward=True, MV=0)
     myMotor2.setSpeed(MV)
     myMotor4.setSpeed(MV)
 
-    count = 0
+    if forward:
+        myMotor2.run(Adafruit_MotorHAT.FORWARD)
+        myMotor4.run(Adafruit_MotorHAT.FORWARD)
+    else:
+        myMotor2.run(Adafruit_MotorHAT.BACKWARD)
+        myMotor4.run(Adafruit_MotorHAT.BACKWARD)
 
-    while count <= loop:
-
-        if forward:
-            myMotor2.run(Adafruit_MotorHAT.FORWARD)
-            myMotor4.run(Adafruit_MotorHAT.FORWARD)
-        else:
-            myMotor2.run(Adafruit_MotorHAT.BACKWARD)
-            myMotor4.run(Adafruit_MotorHAT.BACKWARD)
-
-        count += 1
-        time.sleep(sleep)
+def motorTest():
+# simply drives motors straight forward for 10 seconds
+    SetAndDriveRight(forward=True, MV=200)
+    SetAndDriveLeft(forward=True, MV=200)
+    time.sleep(10)
+    turnOffMotors()
 
 # fuction used to disable motors on shutdown
 def turnOffMotors():

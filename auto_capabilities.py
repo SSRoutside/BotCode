@@ -111,10 +111,6 @@ def wallFollow():
 ##    #front_log = []
 ##    #back_log = []
 
-    # set loop and sleep values for motor commands to 0
-    loop = 0
-    sleep = 0
-
     # call function to obtain front and back distance averages
     f_dist_av, b_dist_av = makeWFArray(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, f_dist_frame, b_dist_frame)
 
@@ -288,73 +284,3 @@ def twoWallCheck():
     leftWall = findWall(LF_TRIG, LF_ECHO)
 
     return(rightWall and leftWall)
-
-def randomWalk():
-    # will return 1 or 0
-    random_direction = random.randint(0, 1)
-
-    # determine random time to drive forward (between 15 and 25 seconds)
-    driveTime = random.randint(15, 25)
-
-    # determine random time to execute length of turn (between 2 and 8 seconds)
-    turnTime = random.randint(2,8)
-
-    # initialize sleep to one second
-    sleep = 1
-
-    if random_direction == 1:
-        # turn to the right
-        rightMV = 25
-        rightF = True
-        leftMV = 230
-        leftF = True
-        print('pivoting right')
-
-        return rightMV, rightF, leftMV, leftF, driveTime, turnTIme, sleep 
-
-    else:
-        # turn to the left
-        rightMV = 230
-        rightF = True
-        leftMV = 25
-        leftF = True
-        print('pivoting left')
-
-        return rightMV, rightF, leftMV, leftF, driveTime, turnTIme, sleep
-
-
-        # continue in that direction for randomly determined time
-#    while turnCount < (turnTime/.25):
-
-        # check for cone and exit randomWalk if found
-#        if findCone() == True:
- #           print("Cone detected.")
-  #          return
-
-        # check for wall and exit randomWalk if found
-#        if oneWallCheck() == True:
- #           print("Wall detected.")
-  #          return
-
-#        turnCount += 1
-
-#    while driveCount < (driveTime/.25):
-
-        # check for cone and exit randomWalk if found
-#        if findCone() == True:
- #           print("Cone detected.")
-  #          return
-
-        # check for wall and exit randomWalk if found
-#        if oneWallCheck() == True:
- #           print("Wall detected.")
-  #          return
-
-#        driveCount += 1
-
-def motorTest():
-# simply drives motors straight forward for 10 seconds
-    SetAndDriveRight(forward=True, MV=200)
-    SetAndDriveLeft(forward=True, MV=200)
-    time.sleep(10)
-    turnOffMotors()
