@@ -13,66 +13,18 @@ from matplotlib import pyplot as plt
 import numpy as np
 import motor_init
 
-e_last = 0
-e = 0
-
-with pyrs.Service() as a:
-    print 'hi' 
-    dev = pyrs.Device()
-    cnt = 0
-    last = time.time()
-    smoothing = 0.9
-    fps_smooth = 30
-
-    def nothing(x):
-        pass
 
 
-   
+
+def nav_to_cone(x):
+    e_last = 0
+    e = 0
+    
+
     #if you get a true value it updates counter, if it is false
     # it resets and once it reaches a threshold
     # or look at every fifth frame
 
-    while True:
-
-        cnt += 1
-        if (cnt % 1) == 0:
-                now = time.time()
-                dt = now - last
-                fps = 10/dt
-                fps_smooth = (fps_smooth * smoothing) + (fps * (1.0 -smoothing))
-                last = now
-
-        dev.wait_for_frames()
-
-        c = dev.color 
-        # was color
-
-      #  e = dev.dac
-  #      f = dev.cad
-
-     #   eh = np.size(e,0)
-     #   ew = np.size(e,1)
-
-        
-        #cd = np.concatenate((e,f), axis=1)
-
-
-
-#        cv2.imshow('', cd)
-   #     c_col = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
-        rgb_im = cv2.cvtColor(c, cv2.COLOR_RGB2BGR)
-       # cd = np.concatenate((c_col,rgb_im), axis=1)
-       # cv2.imshow('this is our image', cd)
-
-
-
-      #  h = np.size(c,0)
-      #  w = np.size(c,1)
-
-        #depth aligned color
-       # depth_and_color = dev.dac
-       # d_and_c = 
 #####################################################
 ##
 ##
@@ -88,27 +40,6 @@ with pyrs.Service() as a:
 ##
 ##
 ##################################################
-
-        rgb_im, cone_present, x, y = coneDetWithShape.find_cone(rgb_im)
-        
-
-        #resized = cv2.resize(rgb_im, None,fx= 640/1920,fy= 480/1080, interpolation=cv2.INTER_AREA)
-        #h = np.size(resized,0)
-        #w = np.size(resized,1)
-        
-        #print h
-        #print w
-    #    dx = int(x* (640/1920))
-    #    dy = int(y*(480/1080))
-        if cone_present == True:
-            print 'cone spotted, moving forward'    
-            print(cone_present)
-
-            ### stopping distance using depth starts here ###
-
-            
-        #    depth = [x, y]
-        #    print(depth)  
 
 
             ############################################################
@@ -129,13 +60,13 @@ with pyrs.Service() as a:
 
 
 
+    
+    correction_needed = motor_init.isCorrectionNeeded(x)
+    e = motor_init.getError(x)
 
-            correction_needed = motor_init.isCorrectionNeeded(x)
-            e = motor_init.getError(x)
-
-            if correction_needed == True:
-                print "error is %f" % (e)
-                crt = motor_init.getCorrection(e, e_last, dt)
+    if correction_needed == True:
+        print "error is %f" % (e)
+        crt = motor_init.getCorrection(e, e_last, dt)
                 ########################
                 ##
                 ##  Thresholding
@@ -143,15 +74,15 @@ with pyrs.Service() as a:
                 ########################
                 # even though the error is a distance in the frame of view, it is still proportional to the speed
                 # sets a max value
-                if e > 255:
-                    e = 255
+        if e > 255:
+            e = 255
 
                 # sets a min value
-                if e < -255:
-                    e = -255
+        if e < -255:
+            e = -255
 
-                mv = int(2 * e)
-                speed = 150 #initialize
+        mv = int(2 * e)
+        speed = 150 #initialize
                 # this is the range where it is fine to go straight forward
 #                if e > -20 and e < 20:
  #                   motor_init.SetAndDriveLeft(.4, True, speed)
@@ -163,52 +94,66 @@ with pyrs.Service() as a:
                 ##
                 ############################################
                 # these are the values for it to turn right
-                if e >= 20:
+        if e >= 20:
                 ### turn right ###
                 ### this would make it turn on spot 
                 ### for how long? until the cone is directly on centerline?           
                 ### should we add a margin of acceptance, which says if the center of mass is within this window, its ok, so move forward?
-                    motor_init.SetAndDriveLeft(.4, False, mv)
-                    motor_init.SetAndDriveRight(.4, True, mv)
-                    print 'correcting right ((((BUT ACTUALLY LEFT)))'
+       #     motor_init.SetAndDriveLeft(.4, False, mv)
+        #    motor_init.SetAndDriveRight(.4, True, mv)
+            rightL = False
+            rightMV = mv
+            leftL = True
+            leftMV = mv
+            print 'correcting right ((((BUT ACTUALLY LEFT)))'
                ### now go forward ###
                    # motor_init.SetAndDriveLeft(.4, True, speed)
                    # motor_init.SetAndDriveRight(.4, True, speed)
                    # print 'now going forward'
 
             # if e < 0
-                if e <= -20:
+        if e <= -20:
                 ### turn left ###
-                    motor_init.SetAndDriveLeft(.4, True, mv)
-                    motor_init.SetAndDriveRight(.4, False, mv)
-                    print 'correcting left ((((BUT ACTUALLY RIGHT))))'
+         #   motor_init.SetAndDriveLeft(.4, True, mv)
+         #   motor_init.SetAndDriveRight(.4, False, mv)
+            rightL = True
+            rightMV = mv
+            leftL = False
+            leftMV = mv
+
+            print 'correcting left ((((BUT ACTUALLY RIGHT))))'
                 ### now go forward ###
                    # motor_init.SetAndDriveLeft(.4, True, speed)
                    # motor_init.SetAndDriveRight(.4, True, speed)
                    # print 'now going forward'
-                else:
-                    motor_init.SetAndDriveLeft(.4, True, 250)
-                    motor_init.SetAndDriveRight(.4, True, 250)
-                    print 'error is negligible, going forward'
+    else:
+    #    motor_init.SetAndDriveLeft(.4, True, 250)
+    #    motor_init.SetAndDriveRight(.4, True, 250)
+        rightL = True
+        rightMV = 250
+        leftL = True
+        leftMV = 250
 
+        print 'error is negligible, going forward'
 
+    return rightMV, rightF, leftMV, leftF
 
-            else:
-
+# else:
+#
                 ### go straight forward ###
-                motor_init.SetAndDriveLeft(.4, True, 150)
-                motor_init.SetAndDriveRight(.4, True, 150)
-                print 'CHARGING FORWARD!!!!!!' 
+ #               motor_init.SetAndDriveLeft(.4, True, 150)
+  #              motor_init.SetAndDriveRight(.4, True, 150)
+   #             print 'CHARGING FORWARD!!!!!!' 
 
 
 
-        else:
-            print 'spinning to locate cone'   
+ #       else:
+  #          print 'spinning to locate cone'   
           #  e =  motor_init.getError(x) #its not going to have an error if cone (or anything orange) isnt present
-          #  print "error is %f" % (e)
-            MV = 150
-            motor_init.SetAndDriveLeft(.5, False, MV)
-            motor_init.SetAndDriveRight(.3, True, MV)
+   #       #  print "error is %f" % (e)
+    #        MV = 150
+     ##       motor_init.SetAndDriveLeft(.5, False, MV)
+       #     motor_init.SetAndDriveRight(.3, True, MV)
 
       #  d = dev.depth #* dev.depth_scale * 1000
       #  d_im = dev.depth*0.05
@@ -222,9 +167,9 @@ with pyrs.Service() as a:
   #      print(eh)
   #      print(ew)
 
-        f = dev.cad
-        fh = np.size(f,0)
-        fw = np.size(f,1)
+       # f = dev.cad
+       # fh = np.size(f,0)
+       # fw = np.size(f,1)
         #print fh, fw
 
   #      cv2.imshow('f', f)
@@ -258,14 +203,14 @@ with pyrs.Service() as a:
 #        cv2.imshow('', d_im_col)
    #     d = dev.dac
 #        cv2.imshow('', cd)
-        e_last = e
-        input = cv2.waitKey(1)
+     #   e_last = e
+     #   input = cv2.waitKey(1)
 
-        if input == ord('q'):
-            break
+      #  if input == ord('q'):
+      #      break
 
-        elif (input == -1):
-            continue
-        time.sleep(.25)
-    print("Good bye")
-    motor_init.turnOffMotors()
+      #  elif (input == -1):
+      #      continue
+      #  time.sleep(.25)
+   # print("Good bye")
+   # motor_init.turnOffMotors()

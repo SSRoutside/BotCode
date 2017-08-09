@@ -39,12 +39,21 @@ with pyrs.Service() as a:
         print("Restart Variable: " + str(cone_present))
 
         # determine if cone is in field of view
-        cone_present = AC.findCone(dev, cnt)
+        cone_present, x, y = AC.findCone(dev, cnt)
 
         # determine if wall exists
         oneWall = AC.oneWallCheck()
 
-        if oneWall == True:
+
+        if cone_present == True:
+           # enter motor commands that navigate in the direction of t$
+                # for now, this is straigt, but it should be determined by$
+            # to the centroid of the cone.
+
+            rightMV, rightF, leftMV, leftF = nav_to_cone(x)
+
+
+        elif oneWall == True:
             # run the wallFollowing sequence
             rightMV, rightF, leftMV, leftF = AC.wallFollow()
 
