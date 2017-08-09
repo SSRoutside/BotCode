@@ -296,8 +296,7 @@ def randomWalk():
     # determine random time to drive forward (between 15 and 25 seconds)
     driveTime = random.randint(15, 25)
 
-    # determine random time to execute length of turn
-. (between 2 and 8 seconds)
+    # determine random time to execute length of turn (between 2 and 8 seconds)
     turnTime = random.randint(2,8)
 
     # initialize sleep to one second

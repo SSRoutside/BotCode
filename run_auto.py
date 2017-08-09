@@ -1,6 +1,8 @@
 # import current autonomous functions
 import auto_capabilities as AC
+# import motor commands and initialization
 import motor_init as MI
+import time
 
     # what is this? does this need to be in the function or at the
     # beginning of the main file or camera_init?
@@ -24,7 +26,7 @@ with pyrs.Service() as a:
     # initialize loop counter
     loop = 0
 
-    # main driving loop
+    # main environment sampling loop
     while loop <= 1000:
 
         # initialize flags as False
@@ -44,9 +46,33 @@ with pyrs.Service() as a:
             rightMV, rightF, leftMV, leftF, loop, sleep = AC.wallFollow()
 
         else:
-            # set straight motorvalue (80% max)
-            straight_MV = 204
-            # run randomWalk when there is no other information available
-            rightMV, rightF, leftMV, leftF, driveTime, turnTime, sleep = AC.randomWalk()
+            # reaching this point means there is no pre-programmed event to
+            # execute based on the surroundings. a "randomWalk" command will
+            # be sent.
 
+            # set left and right to drive forwards for all random commands
+            rightF = True
+            leftF = True
+
+            # random direction to decide direction of turn
+            direction = random.randint(0,1)
+
+            if randCount < 10:
+                # send a turn command
+
+            elif (randCount >= 10) and (randCount < 30):
+                # send a command to drive straight
+                # value corresponds to 80% of maximum power
+                rightMV = 204
+                leftMV = 204
+
+            else:
+                # reset randCount to zero
+                randCount = 0
+
+                # also set motors to straight
+                rightMV = 204
+                leftMV = 204
+
+        # incrememt overall loop count
         loop += 1
