@@ -4,105 +4,73 @@ import auto_capabilities as AC
 import motor_init as MI
 import time
 
-    # what is this? does this need to be in the function or at the
-    # beginning of the main file or camera_init?
-with pyrs.Service() as a:
+# initialize loop counter
+loop = 0
 
-    dev = pyrs.Device()
+# initialize randomWalk counter
+randCount = 0
 
-    #dev.apply_ivcam_preset(0)
-    #dev.set_device_option(11, 1)
-    #dev.set_device_option(10,1)
-    #dev.set_device_option(31,1)
+# main environment sampling loop
+while loop <= 1000:
 
-    cnt = 0
-    last = time.time()
-    smoothing = 0.9
-    fps_smooth = 30
+    # initialize flags as False
+    oneWall = False
 
-    def nothing(x):
-        pass
+    print("Restart Variable: " + str(cone_present))
 
-    # initialize loop counter
-    loop = 0
+    # determine if wall exists
+    oneWall = AC.oneWallCheck()
 
-    # initialize randomWalk counter
-    randCount = 0
+    if oneWall == True:
+        # run the wallFollowing sequence
+        rightMV, rightF, leftMV, leftF = AC.wallFollow()
 
-    # main environment sampling loop
-    while loop <= 1000:
+    else:
+        # reaching this point means there is no pre-programmed event to
+        # execute based on the surroundings. a "randomWalk" command will
+        # be sent.
 
-        # initialize flags as False
-        oneWall = False
-        cone_present = False
+        # set left and right to drive forwards for all random commands
+        rightF = True
+        leftF = True
 
-        print("Restart Variable: " + str(cone_present))
+        # random direction to decide direction of turn
+        direction = random.randint(0,1)
 
-        # determine if cone is in field of view
-        cone_present, x, y = AC.findCone(dev, cnt)
-
-        # determine if wall exists
-        oneWall = AC.oneWallCheck()
-
-
-        if cone_present == True:
-           # enter motor commands that navigate in the direction of t$
-                # for now, this is straigt, but it should be determined by$
-            # to the centroid of the cone.
-
-            rightMV, rightF, leftMV, leftF = nav_to_cone(x)
-
-
-        elif oneWall == True:
-            # run the wallFollowing sequence
-            rightMV, rightF, leftMV, leftF = AC.wallFollow()
-
-        else:
-            # reaching this point means there is no pre-programmed event to
-            # execute based on the surroundings. a "randomWalk" command will
-            # be sent.
-
-            # set left and right to drive forwards for all random commands
-            rightF = True
-            leftF = True
-
-            # random direction to decide direction of turn
-            direction = random.randint(0,1)
-
-            if randCount < 10:
-                # send a turn command
-                # strong side set to 90% capacity, weak side set to 10% capacity
-                if direction == 1:
-                    # turn right
-                    rightMV = 25
-                    leftMV = 230
-
-                else:
-                    # turn left
-                    rightMV = 230
-                    leftMV = 25
-
-            elif (randCount >= 10) and (randCount < 30):
-                # send a command to drive straight
-                # value corresponds to 80% of maximum power
-                rightMV = 204
-                leftMV = 204
+        if randCount < 10:
+            # send a turn command
+            # strong side set to 90% capacity, weak side set to 10% capacity
+            if direction == 1:
+                # turn right
+                rightMV = 25
+                leftMV = 230
 
             else:
-                # reset randCount to zero
-                randCount = 0
+                # turn left
+                rightMV = 230
+                leftMV = 25
 
-                # also set motors to straight
-                rightMV = 204
-                leftMV = 204
+        elif (randCount >= 10) and (randCount < 30):
+            # send a command to drive straight
+            # value corresponds to 80% of maximum power
+            rightMV = 204
+            leftMV = 204
 
-        # set motor values basedon returns from above
-        MI.SetAndDriveRight(rightF, rightMV)
-        MI.SetAndDriveLeft(leftF, leftMV)
+        else:
+            # reset randCount to zero
+            randCount = 0
 
-        # incrememt overall loop count
-        loop += 1
+            # also set motors to straight
+            rightMV = 204
+            leftMV = 204
 
-    # turn off motors at stop of driving while loop
-    # instead of "with" loop
-    MI.turnOffMotors()
+    # set motor values basedon returns from above
+    MI.SetAndDriveRight(rightF, rightMV)
+    MI.SetAndDriveLeft(leftF, leftMV)
+
+    # incrememt overall loop count
+    loop += 1
+
+# turn off motors at stop of driving while loop
+# instead of "with" loop
+MI.turnOffMotors()
