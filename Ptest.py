@@ -16,7 +16,7 @@ def centeringPcontrol(left_dist, right_dist):
 
     control = int(kp * error)
     print("Control is: " + str(control))
-    print("Error is: " + str(error)
+    print("Error is: " + str(error))
 
     # if control value is over the maximum motor value,
     # set it to the maximum motor value
@@ -76,7 +76,7 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
 
     control = int(kp * error)
     print("Control is: " + str(control))
-    print("Error is: " + str(error)
+    print("Error is: " + str(error))
 
     # if control value is over the maximum motor value,
     # set it to the maximum motor value
@@ -93,6 +93,7 @@ def wallPcontrol(wall_dist, ideal_dist, left, right):
         leftMV = control + 90
         leftF = True
         rightMV = (control / 2) + 90
+        rightF = True
 
         print("CORRECTING RIGHT")
 

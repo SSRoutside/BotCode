@@ -16,8 +16,6 @@ while loop <= 1000:
     # initialize flags as False
     oneWall = False
 
-    print("Restart Variable: " + str(cone_present))
-
     # determine if wall exists
     oneWall = AC.oneWallCheck()
 

@@ -1,8 +1,8 @@
-import motor_init as MI
 import sonar_init as SI
 import Ptest
 import numpy as np
 import random
+import time
 
 ## camera init stuf: SHOULD BE INIT FILE SOON
 import cv2
@@ -69,6 +69,9 @@ def wallFollow():
 # made in the main autonomous while loop. It will return all of the variables necessary to
 # run
 
+    # get sonar objects
+    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
+
     # get distances from both front sensors
     ##### WHAT HAPPENS IF A WALLL ISN'T SEEN ON ONE OR BOTH SIDES?
     d_right = SI.getDist(RF_TRIG, RF_ECHO)
@@ -115,8 +118,8 @@ def wallFollow():
     f_dist_av, b_dist_av = makeWFArray(FRONT_TRIG, FRONT_ECHO, BACK_TRIG, BACK_ECHO, f_dist_frame, b_dist_frame)
 
     # append log lists
-    front_log.append(f_dist_av)
-    back_log.append(b_dist_av)
+##    front_log.append(f_dist_av)
+##   back_log.append(b_dist_av)
 
     # check distance averages to see if they're reasonable
     print("FRONT DISTANCE: " + str(f_dist_av))
@@ -242,7 +245,7 @@ def wallFollow():
         print('pivoting right')
 
     # return motor values and directions... designed to update about every .25 seconds
-    return rightMV, rightF, leftMV, leftF, loop
+    return rightMV, rightF, leftMV, leftF
 
 ######## end motor command section
 
@@ -256,7 +259,7 @@ def findWall(TRIG, ECHO):
     while i <= 3:
         # get measurements from the left and right front sensors
         # append them to lists
-        d_list.append(getDist(TRIG, ECHO))
+        d_list.append(SI.getDist(TRIG, ECHO))
 
         # increment count
         i += 1
@@ -273,6 +276,10 @@ def findWall(TRIG, ECHO):
 
 def oneWallCheck():
     # checks for a wall to one side of the robot
+
+    # get sonar objects
+    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
+
     rightWall = findWall(RF_TRIG, RF_ECHO)
     leftWall = findWall(LF_TRIG, LF_ECHO)
 
@@ -280,6 +287,10 @@ def oneWallCheck():
 
 def twoWallCheck():
     # checks if there's a wall on both sides of the robot
+
+    # get sonar objects
+    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
+
     rightWall = findWall(RF_TRIG, RF_ECHO)
     leftWall = findWall(LF_TRIG, LF_ECHO)
 
