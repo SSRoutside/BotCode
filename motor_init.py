@@ -1,23 +1,7 @@
+from real_motor_init import mh, myMotor1, myMotor2, myMotor3, myMotor4
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import time
 import atexit
-
-# From Adafruit MotorHat example code
-# create a default object, no changes to I2C address or frequency
-def motorSet():
-    mh = Adafruit_MotorHAT(addr=0x60)
-
-    # get each motor: WORKS FOR LITTLE BLUE
-    # get each motor
-    myMotor1 = mh.getMotor(1) # right motor
-    myMotor2 = mh.getMotor(3) # left motor
-    myMotor3 = mh.getMotor(2) # right motor
-    myMotor4 = mh.getMotor(4) # left motor
-
-    print('motors set')
-
-    # return motor objects
-    return mh, myMotor1, myMotor2, myMotor3, myMotor4
 
 # get motor values between 0 and 255
 def getMotorValue(percent):
@@ -60,9 +44,6 @@ def getCorrection(error, previous_error, dt):
 # used to set speed and direction of Right Motor Pairs
 def SetAndDriveRight(forward=True, MV=0, speed=0):
 
-    # get motor objects
-    mh, myMotor1, myMotor2, myMotor3, myMotor4 = motorSet()
-
     if not(speed == 0):
         MV = getMotorValue(speed)
 
@@ -82,8 +63,6 @@ def SetAndDriveRight(forward=True, MV=0, speed=0):
 
 # used to set speed and direction of Left Motor Pairs
 def SetAndDriveLeft(speed=0, forward=True, MV=0):
-    # get motor objects
-    mh, myMotor1, myMotor2, myMotor3, myMotor4 = motorSet()
 
     if not(speed == 0):
         MV = getMotorValue(speed)
@@ -109,9 +88,6 @@ def motorTest():
 
 # fuction used to disable motors on shutdown
 def turnOffMotors():
-    # get motor objects
-    mh, myMotor1, myMotor2, myMotor3, myMotor4 = motorSet()
-
     mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
     mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
     mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)

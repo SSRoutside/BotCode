@@ -20,10 +20,12 @@ while loop <= 1000:
     oneWall = AC.oneWallCheck()
 
     if oneWall == True:
+        print("***** WALL FOLLOW *****")
         # run the wallFollowing sequence
         rightMV, rightF, leftMV, leftF = AC.wallFollow()
 
     else:
+        print("***** RANDOM WALK *****")
         # reaching this point means there is no pre-programmed event to
         # execute based on the surroundings. a "randomWalk" command will
         # be sent.

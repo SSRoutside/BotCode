@@ -1,3 +1,4 @@
+from real_sonar_init import RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO
 import sonar_init as SI
 import Ptest
 import numpy as np
@@ -70,7 +71,7 @@ def wallFollow():
 # run
 
     # get sonar objects
-    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
+#    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
 
     # get distances from both front sensors
     ##### WHAT HAPPENS IF A WALLL ISN'T SEEN ON ONE OR BOTH SIDES?
@@ -278,7 +279,7 @@ def oneWallCheck():
     # checks for a wall to one side of the robot
 
     # get sonar objects
-    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
+#    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
 
     rightWall = findWall(RF_TRIG, RF_ECHO)
     leftWall = findWall(LF_TRIG, LF_ECHO)
@@ -287,9 +288,6 @@ def oneWallCheck():
 
 def twoWallCheck():
     # checks if there's a wall on both sides of the robot
-
-    # get sonar objects
-    RF_TRIG, RF_ECHO, LF_TRIG, LF_ECHO, RB_TRIG, RB_ECHO, LB_TRIG, LB_ECHO = SI.setSonar()
 
     rightWall = findWall(RF_TRIG, RF_ECHO)
     leftWall = findWall(LF_TRIG, LF_ECHO)
