@@ -72,7 +72,6 @@ RF_TRIG.write(0)
 LF_TRIG.write(0)
 RB_TRIG.write(0)
 LB_TRIG.write(0)
->>>>>>> master
 
 # wait for sensors to settle (ensures low setting)
 print("Waiting For Sensor To Settle")
